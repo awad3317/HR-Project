@@ -1,7 +1,10 @@
 <?php 
-include('database.php');
-$conn=new database();
-$result=$conn->All('users');
+include('DB/database.php');
+include('DB/user.php');
+$database = new Database();
+$db = $database->connect();
+$user = new user($db);
+$users=$user->All();
 
 ?>
 

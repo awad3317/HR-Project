@@ -1,7 +1,11 @@
 <?php 
-include('database.php');
-$conn=new database();
-$result=$conn->select("SELECT employees.id AS 'id', employees.name AS 'employee',basic_sarary, departments.name AS 'department',phone,start_date,imge FROM `employees` , `departments` WHERE employees.department_id = departments.id ");
+include('DB/database.php');
+include('DB/employee.php');
+
+$database = new Database();
+$db = $database->connect();
+$employee = new employee($db);
+$employees=$employee->select("SELECT employees.id AS 'id', employees.name AS 'employee',basic_sarary, departments.name AS 'department',phone,start_date,imge FROM `employees` , `departments` WHERE employees.department_id = departments.id ");
 $count=0;
 ?>
 <!DOCTYPE html>
@@ -74,16 +78,16 @@ $count=0;
                                     </thead>
                                     
                                    <tbody>
-                                   <?php while($row=$result->fetch_assoc()){
+                                   <?php foreach($employees as $employee){
                                    $count++;
                                     ?>
                                     <tr>
                                         <td><?=$count?></td>
-                                        <td><?=$row['employee']?></td>
-                                        <td><?=$row['phone']?></td>
-                                        <td><?=$row['department']?></td>
-                                        <td><?=$row['basic_sarary']?></td>
-                                        <td><a href="employee_details.php?id=<?=$row['id']?>"><button class="btn btn-outline-primary">التفاصيل</button></a></td>
+                                        <td><?=$employee['employee']?></td>
+                                        <td><?=$employee['phone']?></td>
+                                        <td><?=$employee['department']?></td>
+                                        <td><?=$employee['basic_sarary']?></td>
+                                        <td><a href="employee_details.php?id=<?=$employee['id']?>"><button class="btn btn-outline-primary">التفاصيل</button></a></td>
                                     </tr>
                                     <?php }?>
                                    </tbody>
