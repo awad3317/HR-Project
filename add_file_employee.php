@@ -2,6 +2,7 @@
 include('DB/database.php');
 include('DB/employee.php');
 include('DB/file_type.php');
+include('DB/jop.php');
 include('DB/department.php');
 
 $database = new Database();
@@ -14,6 +15,8 @@ $data = $_SESSION['data'];
 unset($_SESSION['data']);
 $department=new department($db);
 $departments=$department->find($data['department']);
+$jops=new jop($db);
+$jop=$jops->find($data['jop']);
 $file_type=new file_type($db);
 $files_type=$file_type->All();
 ?>
@@ -105,6 +108,12 @@ $files_type=$file_type->All();
             </div>
             <div class="col-md-6 custom-col">
                 <p><strong>القسم:</strong> <?php foreach($departments as $dep){echo $dep['name'];} ?> </p>
+            </div>
+            <div class="col-md-6 custom-col">
+                <p><strong>الوظيفة:</strong> <?php foreach($jop as $j){echo $j['name'];} ?> </p>
+            </div>
+            <div class="col-md-6 custom-col">
+                <p><strong>تعديل البيانات:</strong> <a href="" >تعديل</a> </p>
             </div>
             
         </div>
