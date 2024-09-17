@@ -78,7 +78,7 @@ $files_type=$file_type->All();
                          </ul>
 
                     <div >
-                    <h3 class="text-center">بيانات الموظف</h3>
+                    <h3 class="text-center">بيانات الموظف الاساسية</h3>
                     <div class="row mb-4 justify-content-center">
                         <div class="col-md-3 text-center">
                             <img id="profileImage" src="<?=$data['image']?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
@@ -120,12 +120,12 @@ $files_type=$file_type->All();
     </div>
 </div>
 </div>
-
+<h3 class="text-center"> إضافة المرفقات</h3>
 <form action="" method="POST" enctype="multipart/form-data">
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
-                <label for="image">تحميل المرفق الأول: <span class="text-danger">*</span></label>
+                <label for="image">البطاقة الشخصية  : <span class="text-danger">*</span></label>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
                     <label class="custom-file-label" for="image">اختر ملف المرفق</label>
@@ -135,6 +135,72 @@ $files_type=$file_type->All();
         <div class="col-md-6">
             <div class="form-group">
                 <label for="department">نوع المرفق: <span class="text-danger">*</span></label>
+                <select class="form-control" id="department" name="department[]" required>
+                    <option value="">اختر نوع المرفق</option>
+                    <?php foreach($files_type as $file_type) { ?>
+                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="image">السيرة الداتية  : </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
+                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="department">نوع المرفق: </label>
+                <select class="form-control" id="department" name="department[]" required>
+                    <option value="">اختر نوع المرفق</option>
+                    <?php foreach($files_type as $file_type) { ?>
+                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="image">اخرى  :</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
+                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="department">نوع المرفق: </label>
+                <select class="form-control" id="department" name="department[]" required>
+                    <option value="">اختر نوع المرفق</option>
+                    <?php foreach($files_type as $file_type) { ?>
+                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="image">اخرى  : </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
+                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="department">نوع المرفق: </label>
                 <select class="form-control" id="department" name="department[]" required>
                     <option value="">اختر نوع المرفق</option>
                     <?php foreach($files_type as $file_type) { ?>

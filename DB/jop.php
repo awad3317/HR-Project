@@ -16,6 +16,11 @@ class jop{
         $result=$this->connection->query($query);
         return $result; 
     }
+    public function delete($id){
+        $query = "DELETE FROM " . $this->table . " WHERE id = $id";
+        $result=$this->connection->query($query);
+        return $result; 
+    }
 }
 
 ?>
