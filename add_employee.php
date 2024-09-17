@@ -2,14 +2,18 @@
 include('DB/database.php');
 include('DB/department.php');
 include('Validattion/Validator.php');
+$database = new Database();
+$db = $database->connect();
 if(isset($_POST['save'])) {
     $data=[
         'name'=>$_POST['name'],
+        'id'=>1,
     ];
     $rules=[
-        'name'=>'required'
+        'name'=>'required',
+        'id'=>'exists:departments'
     ];
-    $validation= new Validator();
+    $validation= new Validator($db);
    if($validation->validate($data,$rules)){
 
    } 
@@ -17,8 +21,7 @@ if(isset($_POST['save'])) {
     var_dump($validation->errors()); 
    }
 }
-$database = new Database();
-$db = $database->connect();
+
 $department=new department($db);
 $departments=$department->All();
 
