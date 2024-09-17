@@ -54,9 +54,9 @@ $count=0;
 
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
-                            <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                            <li class="breadcrumb-item active">الموظفين </li> 
-                         </ul>
+                        <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
+                        <li class="breadcrumb-item active">الموظفين </li> 
+                    </ul>
                     <h1 class="h3 mb-2 text-gray-800">الموظفين</h1>
 
                     <!-- DataTales Example -->
@@ -103,13 +103,7 @@ $count=0;
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
-                    </div>
-                </div>
-            </footer>
+           <?php include("footer.html") ?>
             <!-- End of Footer -->
 
         </div>
@@ -127,21 +121,7 @@ $count=0;
     <?php include('Logout_model.html') ?>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
+   <?php include("script.html") ?>
 
 </body>
 

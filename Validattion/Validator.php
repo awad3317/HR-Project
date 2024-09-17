@@ -35,8 +35,6 @@ class Validator {
                 return !is_null($value) && $value !== '';
             case 'email':
                 return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
-            case 'exists':
-                return $this->checkIfExists($value, $table);
             case 'max':
                 return $this->validateMax($value, $param);
             case 'min':
@@ -49,21 +47,11 @@ class Validator {
     }
 
     private function validateMin($value, $min) {
-        return $value >= $min;
+        return is_string($value) ? strlen($value) >= (int)$min: true;
     }
 
     private function validateMax($value, $max) {
         return is_string($value) ? strlen($value) <= (int)$max : true;
-    }
-
-    private function checkIfExists($id, $table) {
-        if ($table && is_numeric($id)) {
-            $query = "SELECT COUNT(*) AS count FROM $table WHERE id = $id";
-            $result = $this->db->query($query);
-            $count = $result->fetch_assoc()['count'] ?? 0;
-            return $count > 0;
-        }
-        return false;
     }
 
     protected function getErrorMessage($field, $rule) {

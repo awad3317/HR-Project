@@ -2,13 +2,18 @@
 include('DB/database.php');
 include('DB/employee.php');
 include('DB/file_type.php');
+include('DB/department.php');
 
 $database = new Database();
 $db = $database->connect();
-if(!isset($_GET['data'])){
+session_start();
+if(!isset($_SESSION['data'])){
     header("location: add_employee.php");
 }
-$data = json_decode(urldecode($_GET['data']), true);
+$data = $_SESSION['data'];
+unset($_SESSION['data']);
+$department=new department($db);
+$departments=$department->find($data['department']);
 $file_type=new file_type($db);
 $files_type=$file_type->All();
 ?>
@@ -69,33 +74,42 @@ $files_type=$file_type->All();
                             <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
 
-<div >
-    <h3>بيانات الموظف</h3>
-    <div class="row custom-row">
-      
-            <div class="col-md-3  custom-col">  
-            <p><strong>الاسم:</strong> <?=$data['name']?> </p>     
+                    <div >
+                    <h3 class="text-center">بيانات الموظف</h3>
+                    <div class="row mb-4 justify-content-center">
+                        <div class="col-md-3 text-center">
+                            <img id="profileImage" src="<?=$data['image']?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
+                        </div>
+                    <div class="col-md-8">
+                        <div class="row">
+            <div class="col-md-6 custom-col">  
+                <p><strong>الاسم:</strong> <?=$data['name']?> </p>     
             </div>
-            <div class="col-md-3  custom-col">
-            <p><strong>رقم الهوية:</strong> <?=$data['divinity_no']?></p>
+            <div class="col-md-6 custom-col">
+                <p><strong>رقم الهوية:</strong> <?=$data['divinity_no']?></p>
             </div>
-            <div class="col-md-3 custom-col">
-            <p><strong>تاريخ الميلاد:</strong> <?=$data['birthdate']?> </p>
+            <div class="col-md-6 custom-col">
+                <p><strong>تاريخ الميلاد:</strong> <?=$data['birthdate']?> </p>
             </div>
-            <div class="col-md-3 custom-col">
-            <p><strong>رقم التواصل:</strong> <?=$data['phone']?> </p>
+            <div class="col-md-6 custom-col">
+                <p><strong>رقم التواصل:</strong> <?=$data['phone']?> </p>
             </div>
-            <div class="col-md-3 custom-col">
-            <p><strong>العنوان:</strong> <?=$data['address']?></p>
+            <div class="col-md-6 custom-col">
+                <p><strong>العنوان:</strong> <?=$data['address']?></p>
             </div>
-            <div class="col-md-3 custom-col">
-            <p><strong>الراتب الاساسي:</strong> <?=$data['basic_salary']?> </p>
+            <div class="col-md-6 custom-col">
+                <p><strong>الراتب الأساسي:</strong> <?=$data['basic_salary']?> </p>
             </div>
-            <div class="col-md-2 custom-col">
-            <p><strong>الجنس:</strong> <?php echo $data['sex']==true?'دكر':'انثى'?> </p>
+            <div class="col-md-6 custom-col">
+                <p><strong>الجنس:</strong> <?php echo $data['sex'] == true ? 'ذكر' : 'أنثى'; ?> </p>
             </div>
-     
+            <div class="col-md-6 custom-col">
+                <p><strong>القسم:</strong> <?php foreach($departments as $dep){echo $dep['name'];} ?> </p>
+            </div>
+            
+        </div>
     </div>
+</div>
 </div>
 
 <form action="" method="POST" enctype="multipart/form-data">
@@ -131,13 +145,7 @@ $files_type=$file_type->All();
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
-                    </div>
-                </div>
-            </footer>
+            <?php include("footer.html") ?>
             <!-- End of Footer -->
 
         </div>
@@ -155,21 +163,7 @@ $files_type=$file_type->All();
     <?php include('Logout_model.html') ?>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
+   <?php include("script.html") ?>
     <script>
     // تحديث نص التسمية عند اختيار ملف
     document.querySelector('.custom-file-input').addEventListener('change', function (event) {

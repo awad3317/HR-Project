@@ -21,13 +21,12 @@ if(isset($_POST['save'])) {
         'jop'=>$_POST['jop'],
         'email'=>$_POST['email'],
     ];
-   
     $rules=[
         'name'=>'required',
         'divinity_no'=>'required',
         'email'=>'email',
         'basic_salary'=>'required',
-        'department'=>'required|exists:departments',
+        'department'=>'required',
         'sex'=>'required|boolean',
         'jop'=>'required',
         'birthdate'=>'required',
@@ -36,10 +35,11 @@ if(isset($_POST['save'])) {
     ];
     $validation= new Validator($db);
    if($validation->validate($data,$rules)){
-        $path='Upload/'.time().$_FILES['image']['name'];
-        move_uploaded_file($_FILES['image']['tmp_name'],$path);
-        $data['imge']=$path;
-        $jsonData = json_encode($data);
+        $imageData = file_get_contents($_FILES['image']['tmp_name']);
+        $base64Image = base64_encode($imageData);
+        $data['image'] = 'data:' . $_FILES['image']['type'] . ';base64,' . $base64Image;
+        session_start();
+        $_SESSION['data'] = $data;
         header("Location: add_file_employee.php?data=" . urlencode($jsonData));
         exit; 
    } 
@@ -51,7 +51,6 @@ $jop=new jop($db);
 $jops=$jop->All();
 $department=new department($db);
 $departments=$department->All();
-
 ?>
 
 <!DOCTYPE html>
@@ -103,44 +102,44 @@ $departments=$department->All();
                             <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
                             <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
-                    <h1 class="h3 mb-2 text-gray-800">إضافة موظف جديد </h1>
-    <form action="" method="POST" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="name">الاسم: <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['name'][0])){echo $validation['name'][0];}?></span></label>
-                    <input type="text" class="form-control" id="name" name="name" >
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="email">رقم الهوية : <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="email" name="divinity_no" required>
-                </div>
-            </div>
-        </div>
+                    <h1 class="h3 mb-2 text-gray-800">المعلومات الاساسية </h1>
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">الاسم: <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['name'][0])){echo $validation['name'][0];}?></span></label>
+                                    <input type="text" class="form-control" value="<?=$data['name']??''?>" id="name" name="name" >
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email">رقم الهوية : <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="<?=$data['divinity_no']??''?>" id="email" name="divinity_no" required>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="email">البريد الإلكتروني:</label>
-                    <input type="email" class="form-control" id="email" name="email">
-                </div>
-            </div>
-            <div class="col-md-6">
-            <div class="form-group">
-                    <label for="email">الراتب الاساسي  : <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="email" name="salary" required>
-                </div>
-            </div>
-        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email">البريد الإلكتروني:</label>
+                                    <input type="email" class="form-control" value="<?=$data['email']??''?>" id="email" name="email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email">الراتب الاساسي  : <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="<?=$data['basic_salary']??''?>" id="salary" name="salary" required>
+                                </div>
+                            </div>
+                        </div>
 
         <div class="row">
             <div class="col-md-6">
             <div class="form-group">
                     <label for="department">القسم: <span class="text-danger">*</span></label>
-                    <select class="form-control" id="department" name="department" required>
-                        <option value="">اختر القسم</option>
+                    <select class="form-control" id="department" name="department" >
+                        <option value="">اخترالقسم</option>
                         <?php foreach($departments as $department){?>
                         <option value="<?=$department['id']?>"> <?=$department['name']?></option>
                         <?php }?>
@@ -185,13 +184,13 @@ $departments=$department->All();
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="name">رقم التواصل : <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="phone" required>
+                    <input type="text" class="form-control" value="<?=$data['phone']??''?>" id="phone" name="phone" required>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="email">العنوان  : <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="email" name="address" required>
+                    <input type="text" class="form-control" value="<?=$data['address']??''?>" id="address" name="address" required>
                 </div>
             </div>
         </div>
