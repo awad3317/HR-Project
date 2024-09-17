@@ -28,7 +28,7 @@ if(isset($_POST['save'])) {
         'email'=>'email',
         'basic_salary'=>'required',
         'department'=>'required|exists:departments',
-        'sex'=>'required',
+        'sex'=>'required|boolean',
         'jop'=>'required',
         'birthdate'=>'required',
         'phone'=>'required',
@@ -39,12 +39,12 @@ if(isset($_POST['save'])) {
         $path='Upload/'.time().$_FILES['image']['name'];
         move_uploaded_file($_FILES['image']['tmp_name'],$path);
         $data['imge']=$path;
-        $employee=new employee($db);
-        $id=$employee->Create($data);
-        header("location: add_file_employee.php?id=$id");
+        $jsonData = json_encode($data);
+        header("Location: add_file_employee.php?data=" . urlencode($jsonData));
+        exit; 
    } 
    else{
-    var_dump($validation->errors()); 
+    $validation=$validation->errors(); 
    }
 }
 $jop=new jop($db);
@@ -108,8 +108,8 @@ $departments=$department->All();
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="name">الاسم: <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="name" required>
+                    <label for="name">الاسم: <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['name'][0])){echo $validation['name'][0];}?></span></label>
+                    <input type="text" class="form-control" id="name" name="name" >
                 </div>
             </div>
             <div class="col-md-6">

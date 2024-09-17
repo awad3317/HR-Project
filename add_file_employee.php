@@ -5,12 +5,10 @@ include('DB/file_type.php');
 
 $database = new Database();
 $db = $database->connect();
-if(!isset($_GET['id'])){
+if(!isset($_GET['data'])){
     header("location: add_employee.php");
 }
-$id=$_GET['id'];
-$employee=new employee($db);
-$emps=$employee->Find($id);
+$data = json_decode(urldecode($_GET['data']), true);
 $file_type=new file_type($db);
 $files_type=$file_type->All();
 ?>
@@ -35,6 +33,16 @@ $files_type=$file_type->All();
    
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.css" rel="stylesheet">
+
+    <style>
+        .custom-row {
+    margin: 0; /* إزالة الهامش بين الصفوف */
+}
+
+.custom-col {
+    padding: 0.2rem; /* تقليل الحشو داخل الأعمدة */
+}
+    </style>
 
 </head>
 <body id="page-top">
@@ -65,34 +73,61 @@ $files_type=$file_type->All();
                             <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
                             <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
-                    <h1 class="h3 mb-2 text-gray-800"> الموظف :<?php foreach($emps as $emp){echo $emp['name'];} ?> </h1>
-    <form action="" method="POST" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="image">تحميل المرفق الاول: <span class="text-danger">*</span></label>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
-                        <label class="custom-file-label" for="image">اختر ملف المرفق</label>
-                    </div>
+<!-- عرض بيانات الموظف -->
+<div >
+    <h3>بيانات الموظف</h3>
+    <div class="row custom-row">
+      
+            <div class="col-md-3  custom-col">  
+            <p><strong>الاسم:</strong> <?=$data['name']?> </p>     
+            </div>
+            <div class="col-md-3  custom-col">
+            <p><strong>رقم الهوية:</strong> <?=$data['divinity_no']?></p>
+            </div>
+            <div class="col-md-3 custom-col">
+            <p><strong>تاريخ الميلاد:</strong> <?=$data['birthdate']?> </p>
+            </div>
+            <div class="col-md-3 custom-col">
+            <p><strong>رقم التواصل:</strong> <?=$data['phone']?> </p>
+            </div>
+            <div class="col-md-3 custom-col">
+            <p><strong>العنوان:</strong> <?=$data['address']?></p>
+            </div>
+            <div class="col-md-3 custom-col">
+            <p><strong>الراتب الاساسي:</strong> <?=$data['basic_salary']?> </p>
+            </div>
+            <div class="col-md-2 custom-col">
+            <p><strong>الجنس:</strong> <?php echo $data['sex']==true?'دكر':'انثى'?> </p>
+            </div>
+     
+    </div>
+</div>
+
+<form action="" method="POST" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="image">تحميل المرفق الأول: <span class="text-danger">*</span></label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
+                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="department">نوع المرفق: <span class="text-danger">*</span></label>
-                    <select class="form-control" id="department" name="department" required>
-                        <option value="">اختر نوع المرفق</option>
-                        <?php foreach($files_type as $file_type){?>
-                        <option value="<?=$file_type['id']?>"> <?=$file_type['type']?></option>
-                        <?php }?>
-                    </select>
-                </div>
-            </div>
-           
         </div>
-        <button type="submit" name="save" class="btn btn-primary">إضافة موظف</button>
-    </form>
-                
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="department">نوع المرفق: <span class="text-danger">*</span></label>
+                <select class="form-control" id="department" name="department[]" required>
+                    <option value="">اختر نوع المرفق</option>
+                    <?php foreach($files_type as $file_type) { ?>
+                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    </div>
+    <button type="submit" name="save" class="btn btn-primary">إضافة مرفقات</button>
+</form>
 
                 </div>
                 <!-- /.container-fluid -->

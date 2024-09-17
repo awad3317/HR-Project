@@ -14,22 +14,22 @@ class Validator {
             $ruleParts = explode('|', $rule);  
 
             foreach ($ruleParts as $singleRule) {
-            
+                $param = null; // تعريف المتغير
+                $table = null;
+
                 if (strpos($singleRule, ':') !== false) {
-                    list($singleRule, $table) = explode(':', $singleRule);
-                } else {
-                    $table = null;
+                    list($singleRule, $param) = explode(':', $singleRule);
                 }
 
-                if (!$this->validateRule($value, $singleRule, $table)) {
-                    $this->errors[$field][] = "The $field field is invalid for rule: $singleRule.";
+                if (!$this->validateRule($value, $singleRule, $param, $table)) {
+                    $this->errors[$field][] = $this->getErrorMessage($field, $singleRule);
                 }
             }
         }
         return empty($this->errors);
     }
 
-    protected function validateRule($value, $rule, $table = null) {
+    protected function validateRule($value, $rule, $param = null, $table = null) {
         switch ($rule) {
             case 'required':
                 return !is_null($value) && $value !== '';
@@ -39,9 +39,17 @@ class Validator {
                 return $this->checkIfExists($value, $table);
             case 'max':
                 return $this->validateMax($value, $param);
+            case 'min':
+                return $this->validateMin($value, $param);
+            case 'boolean':
+                return is_bool($value);
             default:
                 return true;
         }
+    }
+
+    private function validateMin($value, $min) {
+        return $value >= $min;
     }
 
     private function validateMax($value, $max) {
@@ -51,17 +59,29 @@ class Validator {
     private function checkIfExists($id, $table) {
         if ($table && is_numeric($id)) {
             $query = "SELECT COUNT(*) AS count FROM $table WHERE id = $id";
-            $resuts = $this->db->query($query);
-            foreach($resuts as $result){$count= $result['count'];}
+            $result = $this->db->query($query);
+            $count = $result->fetch_assoc()['count'] ?? 0;
             return $count > 0;
         }
         return false;
     }
 
+    protected function getErrorMessage($field, $rule) {
+        $messages = [
+            'required' => "حقل $field مطلوب.",
+            'email' => "يجب أن يكون حقل $field عنوان بريد إلكتروني صالح.",
+            'exists' => "الاختيار في حقل $field غير موجود.",
+            'max' => "يجب ألا يتجاوز حقل $field الحد الأقصى.",
+            'min' => "يجب أن يكون حقل $field على الأقل الحد الأدنى.",
+            'boolean' => "يجب أن يكون حقل $field صحيحًا أو خاطئًا.",
+        ];
+
+        return $messages[$rule] ?? "The $field field is invalid for rule: $rule.";
+    }
+
     public function errors() {
         return $this->errors;
     }
-
 }
 
 ?>
