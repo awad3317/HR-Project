@@ -13,10 +13,7 @@ class database{
        $this->connection= new mysqli($this->servername,$this->username,$this->password,$this->db);
        return $this->connection;
     }
-    public function delete($table,$id){
-        $result=$this->conn->query("DELETE FROM $table WHERE id =$id");
-
-    }
+   
     
     
 

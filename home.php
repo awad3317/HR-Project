@@ -1,10 +1,13 @@
 <?php 
 include('DB/database.php');
-include('DB/user.php');
+include('DB/employee.php');
+include('DB/department.php');
 $database = new Database();
 $db = $database->connect();
-$user = new user($db);
-$users=$user->All();
+$employee = new employee($db);
+$employees=$employee->Count();
+$department= new department($db);
+$departments=$department->Count();
 
 ?>
 
@@ -73,7 +76,7 @@ $users=$user->All();
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                               <h4>عدد الاقسام</h4> </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php foreach($departments as $department){echo $department['count'];} ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -91,10 +94,10 @@ $users=$user->All();
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                                <h4>عدد الموظفين</h4></div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">120</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php foreach($employees as $employee){echo $employee['count'];} ?></div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        <i class="fas fa-comments fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -138,7 +141,8 @@ $users=$user->All();
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">80000</div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                            
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>

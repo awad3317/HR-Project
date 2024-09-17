@@ -13,5 +13,8 @@ class user{
         $result = $stmt->get_result();
         return $result; 
     }
+    public function delete($id){
+        $query = "DELETE * FROM " . $this->table . " WHERE id= $id";
+    }
 }
 ?>
