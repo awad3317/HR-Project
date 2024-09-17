@@ -14,7 +14,7 @@ class Validator {
             $ruleParts = explode('|', $rule);  
 
             foreach ($ruleParts as $singleRule) {
-                $param = null; // تعريف المتغير
+                $param = null; 
                 $table = null;
 
                 if (strpos($singleRule, ':') !== false) {

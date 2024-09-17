@@ -35,13 +35,8 @@ $files_type=$file_type->All();
     <link href="css/sb-admin-2.css" rel="stylesheet">
 
     <style>
-        .custom-row {
-    margin: 0; /* إزالة الهامش بين الصفوف */
-}
-
-.custom-col {
-    padding: 0.2rem; /* تقليل الحشو داخل الأعمدة */
-}
+    .custom-row {margin: 0; }
+    .custom-col {padding: 0.2rem; }
     </style>
 
 </head>
@@ -73,7 +68,7 @@ $files_type=$file_type->All();
                             <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
                             <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
-<!-- عرض بيانات الموظف -->
+
 <div >
     <h3>بيانات الموظف</h3>
     <div class="row custom-row">
