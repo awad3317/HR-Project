@@ -68,7 +68,7 @@ $count=0;
                         <div class="card-header py-3">
                             
                         
-                            <a class="btn btn-primary" href="add_department.php">إضافة</a>
+                            <a class="btn btn-primary" href="add_jop.php">إضافة</a>
                         
                         <div class="table-responsive">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">

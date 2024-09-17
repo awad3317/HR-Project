@@ -21,6 +21,12 @@ class jop{
         $result=$this->connection->query($query);
         return $result; 
     }
+    public function Create($data){
+        $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(name) VALUES (?)");
+        $stmt->bind_param('s',$data['name']);
+        $stmt->execute();
+        return $this->connection->insert_id;
+    }
 }
 
 ?>
