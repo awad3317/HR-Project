@@ -1,27 +1,54 @@
 <?php
 include('DB/database.php');
 include('DB/department.php');
+include('DB/jop.php');
+include('DB/employee.php');
 include('Validattion/Validator.php');
 $database = new Database();
 $db = $database->connect();
 if(isset($_POST['save'])) {
     $data=[
         'name'=>$_POST['name'],
-        'id'=>1,
+        'divinity_no'=>$_POST['divinity_no'],
+        'sex'=>$_POST['sex']=="1"?true:false,
+        'start_date'=>date_format(date_create(),'Y-m-d'),
+        'birthdate'=>$_POST['birthdate'],
+        'phone'=>$_POST['phone'],
+        'address'=>$_POST['address'],
+        'imge'=>'',
+        'basic_salary'=>$_POST['salary'],
+        'department'=>$_POST['department'],
+        'jop'=>$_POST['jop'],
+        'email'=>$_POST['email'],
     ];
+   
     $rules=[
         'name'=>'required',
-        'id'=>'exists:departments'
+        'divinity_no'=>'required',
+        'email'=>'email',
+        'basic_salary'=>'required',
+        'department'=>'required|exists:departments',
+        'sex'=>'required',
+        'jop'=>'required',
+        'birthdate'=>'required',
+        'phone'=>'required',
+        'address'=>'required',
     ];
     $validation= new Validator($db);
    if($validation->validate($data,$rules)){
-
+        $path='Upload/'.time().$_FILES['image']['name'];
+        move_uploaded_file($_FILES['image']['tmp_name'],$path);
+        $data['imge']=$path;
+        $employee=new employee($db);
+        $id=$employee->Create($data);
+        header("location: add_file_employee.php?id=$id");
    } 
    else{
     var_dump($validation->errors()); 
    }
 }
-
+$jop=new jop($db);
+$jops=$jop->All();
 $department=new department($db);
 $departments=$department->All();
 
@@ -124,11 +151,11 @@ $departments=$department->All();
                 <div class="form-group">
                     <label>الجنس: <span class="text-danger">*</span></label><br>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" id="male" name="sex" value="ذكر" required>
+                        <input class="form-check-input" type="radio" id="male" name="sex" value="1" required>
                         <label class="form-check-label" for="male">ذكر</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" id="female" name="sex" value="أنثى">
+                        <input class="form-check-input" type="radio" id="female" name="sex" value="0" required>
                         <label class="form-check-label" for="female">أنثى</label>
                     </div>
                 </div>
@@ -138,11 +165,13 @@ $departments=$department->All();
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="image">تحميل الصورة: <span class="text-danger">*</span></label>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
-                        <label class="custom-file-label" for="image">اختر ملف الصورة</label>
-                    </div>
+                <label for="department">الوظيفة: <span class="text-danger">*</span></label>
+                    <select class="form-control" id="department" name="jop" required>
+                        <option value="">اختر الوظيفة</option>
+                        <?php foreach($jops as $jop){?>
+                        <option value="<?=$jop['id']?>"> <?=$jop['name']?></option>
+                        <?php }?>
+                    </select>
                 </div>
             </div>
             <div class="col-md-6">
@@ -166,7 +195,18 @@ $departments=$department->All();
                 </div>
             </div>
         </div>
-
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="image">تحميل الصورة: <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
+                        <label class="custom-file-label" for="image">اختر ملف الصورة</label>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
         <button type="submit" name="save" class="btn btn-primary">إضافة موظف</button>
     </form>
                 

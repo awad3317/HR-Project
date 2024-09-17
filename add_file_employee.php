@@ -1,13 +1,21 @@
 <?php 
 include('DB/database.php');
 include('DB/employee.php');
+include('DB/file_type.php');
 
 $database = new Database();
 $db = $database->connect();
-$employee = new employee($db);
-$employees=$employee->select("SELECT employees.id AS 'id', employees.name AS 'employee',basic_salary, departments.name AS 'department',phone,start_date,imge FROM `employees` , `departments` WHERE employees.department_id = departments.id ");
-$count=0;
+if(!isset($_GET['id'])){
+    header("location: add_employee.php");
+}
+$id=$_GET['id'];
+$employee=new employee($db);
+$emps=$employee->Find($id);
+$file_type=new file_type($db);
+$files_type=$file_type->All();
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en" dir="rtl">
 
@@ -19,7 +27,7 @@ $count=0;
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title> عرض الموظفين</title>
+    <title>HR - Dashboard</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -29,7 +37,6 @@ $count=0;
     <link href="css/sb-admin-2.css" rel="stylesheet">
 
 </head>
-
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -55,46 +62,37 @@ $count=0;
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
                             <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                            <li class="breadcrumb-item active">الموظفين </li> 
+                            <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
+                            <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
-                    <h1 class="h3 mb-2 text-gray-800">الموظفين</h1>
-
-                    <!-- DataTales Example -->
-                    <div class="card shadow mb-4">
-                       
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <a class="btn btn-primary" href="add_employee.php">إضافة</a>
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>الموظف</th>
-                                            <th>رقم الجوال</th>
-                                            <th> القسم</th>
-                                            <th>الراتب الاساسي</th>
-                                            <th> </th>
-                                        </tr>
-                                    </thead>
-                                    
-                                   <tbody>
-                                   <?php foreach($employees as $employee){
-                                   $count++;
-                                    ?>
-                                    <tr>
-                                        <td><?=$count?></td>
-                                        <td><?=$employee['employee']?></td>
-                                        <td><?=$employee['phone']?></td>
-                                        <td><?=$employee['department']?></td>
-                                        <td><?=$employee['basic_salary']?></td>
-                                        <td><a href="employee_details.php?id=<?=$employee['id']?>"><button class="btn btn-outline-primary">التفاصيل</button></a></td>
-                                    </tr>
-                                    <?php }?>
-                                   </tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <h1 class="h3 mb-2 text-gray-800"> الموظف :<?php foreach($emps as $emp){echo $emp['name'];} ?> </h1>
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="image">تحميل المرفق الاول: <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
+                        <label class="custom-file-label" for="image">اختر ملف المرفق</label>
                     </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="department">نوع المرفق: <span class="text-danger">*</span></label>
+                    <select class="form-control" id="department" name="department" required>
+                        <option value="">اختر نوع المرفق</option>
+                        <?php foreach($files_type as $file_type){?>
+                        <option value="<?=$file_type['id']?>"> <?=$file_type['type']?></option>
+                        <?php }?>
+                    </select>
+                </div>
+            </div>
+           
+        </div>
+        <button type="submit" name="save" class="btn btn-primary">إضافة موظف</button>
+    </form>
+                
 
                 </div>
                 <!-- /.container-fluid -->
@@ -142,7 +140,16 @@ $count=0;
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
+    <script>
+    // تحديث نص التسمية عند اختيار ملف
+    document.querySelector('.custom-file-input').addEventListener('change', function (event) {
+        const fileName = event.target.files[0]?.name || 'تصفح';
+        const label = event.target.nextElementSibling;
+        label.textContent = fileName;
+    });
+</script>
 
 </body>
+
 
 </html>

@@ -9,9 +9,13 @@ class employee{
 
     public function All(){
         $query = "SELECT * FROM " . $this->table;
-        $stmt = $this->connection->prepare($query);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $result=$this->connection->query($query);
+        return $result; 
+    }
+
+    public function Find($id){
+        $query = "SELECT * FROM " . $this->table . " WHERE id = $id";
+        $result=$this->connection->query($query);
         return $result; 
     }
 
@@ -23,6 +27,12 @@ class employee{
         $query = "SELECT COUNT(*) AS 'count' FROM " . $this->table;
         $result=$this->connection->query($query);
         return $result; 
+    }
+    public function Create($data){
+        $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(name , basic_salary , sex , start_date , birthday , phone , address , imge , divinity_no , department_id , jop_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('ssissssssss',$data['name'],$data['basic_salary'],$data['sex'],$data['start_date'],$data['birthdate'],$data['phone'],$data['address'],$data['imge'],$data['divinity_no'],$data['department'],$data['jop']);
+        $stmt->execute();
+        return $this->connection->insert_id;
     }
 }
 
