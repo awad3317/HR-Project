@@ -63,9 +63,15 @@ $departments=$department->Count();
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <ul  class="breadcrumb m-3">
                             <li class="breadcrumb-item">الرئيسية </li> 
-                         </ul>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> توليد تقرير</a>
+                        </ul>
+                        <div class="d-flex">
+                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm me-2">
+                                <i class="fas fa-download fa-sm text-white-50"></i> توليد تقرير
+                            </a>
+                            <a href="add_employee.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                                <i class="fas fa-sm text-white-50"></i> إضافة موظف
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Content Row -->

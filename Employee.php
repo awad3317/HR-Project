@@ -66,7 +66,7 @@ $count=0;
                        
                         <div class="card-body">
                             <div class="table-responsive">
-                                <a class="btn btn-primary" href="add_employee.php">إضافة</a>
+                                <a class="btn btn-primary" href="add_employee.php">إضافة موظف جديد</a>
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
