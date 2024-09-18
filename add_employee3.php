@@ -215,9 +215,9 @@ if($type2 !=''){
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="image"> المرفق : <span class="text-danger">*</span></label>
+                                    <label for="image"> المرفق : </label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="attachment1" name="attachment1" required>
+                                        <input type="file" class="custom-file-input" id="attachment1" name="attachment1">
                                         <label class="custom-file-label" for="image">رفع الملف </label>
                                     </div>
                                 </div>
@@ -235,9 +235,9 @@ if($type2 !=''){
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="image"> المرفق : <span class="text-danger">*</span></label>
+                                    <label for="image"> المرفق : </label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="attachment2" name="attachment2" required>
+                                        <input type="file" class="custom-file-input" id="attachment2" name="attachment2" >
                                         <label class="custom-file-label" for="image">رفع الملف </label>
                                     </div>
                                 </div>
@@ -255,9 +255,9 @@ if($type2 !=''){
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="image"> المرفق : <span class="text-danger">*</span></label>
+                                    <label for="image"> المرفق : </label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="attachment3" name="attachment3" required>
+                                        <input type="file" class="custom-file-input" id="attachment3" name="attachment3">
                                         <label class="custom-file-label" for="image">رفع الملف </label>
                                     </div>
                                 </div>
