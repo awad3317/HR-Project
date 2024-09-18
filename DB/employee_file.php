@@ -17,17 +17,19 @@ class employee_file{
     }
     public function CreateAll($data){
         $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(employee_id, file_id, path) VALUES (?,?,?)");
-        $stmt->bind_param('iis',$data['type1'],$data['employee_id'],$data['allowance1']);
+        $stmt->bind_param('iis',$data['employee_id'],$data['type1'],$data['path1']);
         $stmt->execute();
-        $stmt->bind_param('iis',$data['type2'],$data['employee_id'],$data['allowance2']);
+        $stmt->bind_param('iis',$data['employee_id'],$data['type2'],$data['path2']);
         $stmt->execute();
-        $stmt->bind_param('iis',$data['type2'],$data['employee_id'],$data['allowance2']);
-        $stmt->execute();
+        if($data['type3']!=''){
+            $stmt->bind_param('iis',$data['employee_id'],$data['type3'],$data['path3']);
+            $stmt->execute();
+        }
         return $this->connection->insert_id;
     }
     public function Create($data){
         $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(employee_id, file_id, path) VALUES (?,?,?)");
-        $stmt->bind_param('iis',$data['type1'],$data['employee_id'],$data['allowance1']);
+        $stmt->bind_param('iis',$data['employee_id'],$data['type1'],$data['path1']);
         $stmt->execute();
         return $this->connection->insert_id;
     }

@@ -5,8 +5,10 @@ include('DB/allowance.php');
 include('DB/file.php');
 include('DB/jop.php');
 include('DB/department.php');
+include('DB/employee_file.php');
 include('DB/allowance_employee.php');
 include('Validattion/Validator.php');
+
 session_start();
 
 $database = new Database();
@@ -23,26 +25,49 @@ $data_basic = $_SESSION['data_basic'];
 if(isset($_POST['save'])) {
     $data=[
         'type1'=>$_POST['type1'],
-        'attachment1'=>$_POST['attachment1'],
         'type2'=>$_POST['type2'],
-        'attachment2'=>$_POST['attachment2'],
         'type3'=>$_POST['type3'],
-        'attachment3'=>$_POST['attachment3'],
     ];
     $employee=new employee($db);
     $employee_id=$employee->Create($data_basic);
     $allowances['employee_id']=$employee_id;
     $allowance_employee=new allowance_employee($db);
-    if($allowances['type1'!=''] and $allowances['type2'!='']){
+    if($allowances['type1']!='' and $allowances['type2']!=''){
         $allowance_employee->CreateAll($allowances);
     }
-    elseif($allowances['type1'!='']){
+    elseif($allowances['type1']!=''){
         $allowance_employee->Create($allowances);
     }
     $data['employee_id']=$employee_id;
-    
-    
-    
+    $employee_file=new employee_file($db);
+    if($data['type1']!='' and $data['type2']!='' and $data['type3']!=''){
+        $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
+        move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
+        $data['path1']=$path;
+        $path='Upload/'.random_int(999,99999).$_FILES['attachment2']['name'];
+        move_uploaded_file($_FILES['attachment2']['tmp_name'],$path);
+        $data['path2']=$path;
+        $path='Upload/'.random_int(999,99999).$_FILES['attachment3']['name'];
+        move_uploaded_file($_FILES['attachment3']['tmp_name'],$path);
+        $data['path3']=$path;
+        $employee_file->CreateAll($data);
+    }
+    elseif($data['type1']!='' and $data['type2']!=''){
+        $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
+        move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
+        $data['path1']=$path;
+        $path='Upload/'.random_int(999,99999).$_FILES['attachment2']['name'];
+        move_uploaded_file($_FILES['attachment2']['tmp_name'],$path);
+        $data['path2']=$path;
+        $employee_file->CreateAll($data);
+    }
+    elseif($data['type1']!=''){
+        $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
+        move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
+        $employee_file->Create($data);
+    }
+    var_dump($data);
+    exit;
 }
 $department=new department($db);
 $departments=$department->find($data_basic['department']);
