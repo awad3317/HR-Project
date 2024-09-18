@@ -64,10 +64,10 @@ if(isset($_POST['save'])) {
     elseif($data['type1']!=''){
         $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
         move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
+        $data['path1']=$path;
         $employee_file->Create($data);
     }
-    var_dump($data);
-    exit;
+   header("location: Employee.php");
 }
 $department=new department($db);
 $departments=$department->find($data_basic['department']);
