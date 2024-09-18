@@ -1,8 +1,8 @@
 <?php 
 
-class file_type{
+class file{
     private $connection;
-    private $table = 'file_type';
+    private $table = 'file';
     public function __construct($db) {
         $this->connection = $db;
     }

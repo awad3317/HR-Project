@@ -2,19 +2,16 @@
 include('DB/database.php');
 include('DB/employee.php');
 include('DB/allowance.php');
-include('DB/file_type.php');
+include('DB/file.php');
 include('DB/jop.php');
 include('DB/department.php');
+include('DB/allowance_employee.php');
 include('Validattion/Validator.php');
 session_start();
-if(isset($_POST['save'])) {
-    $data=[
-        'personal_card'=>$_POST['personal_card'],
-        'qualification'=>$_POST['qualification'],
-    ];
-}
+
 $database = new Database();
 $db = $database->connect();
+
 if(isset($_GET['edit'])){
     header("location: add_employee2.php");
 }
@@ -23,12 +20,36 @@ if(!isset($_SESSION['allowances'])){
 }
 $allowances = $_SESSION['allowances'];
 $data_basic = $_SESSION['data_basic'];
+if(isset($_POST['save'])) {
+    $data=[
+        'type1'=>$_POST['type1'],
+        'attachment1'=>$_POST['attachment1'],
+        'type2'=>$_POST['type2'],
+        'attachment2'=>$_POST['attachment2'],
+        'type3'=>$_POST['type3'],
+        'attachment3'=>$_POST['attachment3'],
+    ];
+    $employee=new employee($db);
+    $employee_id=$employee->Create($data_basic);
+    $allowances['employee_id']=$employee_id;
+    $allowance_employee=new allowance_employee($db);
+    if($allowances['type1'!=''] and $allowances['type2'!='']){
+        $allowance_employee->CreateAll($allowances);
+    }
+    elseif($allowances['type1'!='']){
+        $allowance_employee->Create($allowances);
+    }
+    $data['employee_id']=$employee_id;
+    
+    
+    
+}
 $department=new department($db);
 $departments=$department->find($data_basic['department']);
 $jops=new jop($db);
 $jop=$jops->find($data_basic['jop']);
 $allowance_type=new allowance($db);
-$file_type= new file_type($db);
+$file_type= new file($db);
 $file_types=$file_type->All();
 $type1=$allowances['type1'];
 $type2=$allowances['type2'];
@@ -171,7 +192,7 @@ if($type2 !=''){
                                 <div class="form-group">
                                     <label for="image"> المرفق : <span class="text-danger">*</span></label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="image" name="personal_card" accept="image/*" required>
+                                        <input type="file" class="custom-file-input" id="attachment1" name="attachment1" required>
                                         <label class="custom-file-label" for="image">رفع الملف </label>
                                     </div>
                                 </div>
@@ -180,7 +201,7 @@ if($type2 !=''){
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="type1">النوع:</label>
-                                <select class="form-control" id="type1" name="type1">
+                                <select class="form-control" id="type2" name="type2">
                                     <option value="">اختر نوع المرفق</option>
                                     <?php foreach($file_types as $type){  ?>
                                     <option value="<?=$type['id']?>"> <?=$type['type']?></option>
@@ -191,7 +212,7 @@ if($type2 !=''){
                                 <div class="form-group">
                                     <label for="image"> المرفق : <span class="text-danger">*</span></label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="image" name="personal_card" accept="image/*" required>
+                                        <input type="file" class="custom-file-input" id="attachment2" name="attachment2" required>
                                         <label class="custom-file-label" for="image">رفع الملف </label>
                                     </div>
                                 </div>
@@ -200,7 +221,7 @@ if($type2 !=''){
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="type1">النوع:</label>
-                                <select class="form-control" id="type1" name="type1">
+                                <select class="form-control" id="type3" name="type3">
                                     <option value="">اختر نوع المرفق</option>
                                     <?php foreach($file_types as $type){  ?>
                                     <option value="<?=$type['id']?>"> <?=$type['type']?></option>
@@ -211,7 +232,7 @@ if($type2 !=''){
                                 <div class="form-group">
                                     <label for="image"> المرفق : <span class="text-danger">*</span></label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="image" name="personal_card" accept="image/*" required>
+                                        <input type="file" class="custom-file-input" id="attachment3" name="attachment3" required>
                                         <label class="custom-file-label" for="image">رفع الملف </label>
                                     </div>
                                 </div>
@@ -254,6 +275,11 @@ if($type2 !=''){
         label.textContent = fileName;
     });
     document.querySelectorAll('.custom-file-input')[1].addEventListener('change', function (event) {
+        var fileName = event.target.files[0]?.name || 'تصفح';
+        var label = event.target.nextElementSibling;
+        label.textContent = fileName;
+    });
+     document.querySelectorAll('.custom-file-input')[2].addEventListener('change', function (event) {
         var fileName = event.target.files[0]?.name || 'تصفح';
         var label = event.target.nextElementSibling;
         label.textContent = fileName;
