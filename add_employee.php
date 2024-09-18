@@ -164,11 +164,19 @@ $departments=$department->All();
                 <div class="form-group">
                     <label>الجنس: <span class="text-danger">*</span></label><br>
                     <div class="form-check form-check-inline">
+                    <?php if(isset($data['sex']) && $data['sex'] == '1'){ ?>
+                        <input class="form-check-input" type="radio" id="male" name="sex" value="1" required checked>
+                        <?php } else{?>
                         <input class="form-check-input" type="radio" id="male" name="sex" value="1" required>
+                        <?php }?>
                         <label class="form-check-label" for="male">ذكر</label>
                     </div>
                     <div class="form-check form-check-inline">
+                    <?php if(isset($data['sex']) && $data['sex'] == '0'){ ?>
+                        <input class="form-check-input" type="radio" id="female" name="sex" value="0" required checked>
+                        <?php } else{?>
                         <input class="form-check-input" type="radio" id="female" name="sex" value="0" required>
+                        <?php }?>
                         <label class="form-check-label" for="female">أنثى</label>
                     </div>
                 </div>
