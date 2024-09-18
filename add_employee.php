@@ -6,6 +6,8 @@ include('DB/employee.php');
 include('Validattion/Validator.php');
 $database = new Database();
 $db = $database->connect();
+session_start();
+
 if(isset($_POST['save'])) {
     $data=[
         'name'=>$_POST['name'],
@@ -35,17 +37,26 @@ if(isset($_POST['save'])) {
     ];
     $validation= new Validator($db);
    if($validation->validate($data,$rules)){
-        $imageData = file_get_contents($_FILES['image']['tmp_name']);
-        $base64Image = base64_encode($imageData);
-        $data['image'] = 'data:' . $_FILES['image']['type'] . ';base64,' . $base64Image;
+        if($_FILES['image']['tmp_name']){
+            $imageData = file_get_contents($_FILES['image']['tmp_name']);
+            $base64Image = base64_encode($imageData);
+            $data['image'] = 'data:' . $_FILES['image']['type'] . ';base64,' . $base64Image;
+        }else{
+            $data['image'] = $_POST['img'] ;
+        }
+            
         session_start();
-        $_SESSION['data'] = $data;
-        header("Location: add_file_employee.php?data=" . urlencode($jsonData));
+        $_SESSION['data_basic'] = $data;
+        header("Location: add_employee2.php");
         exit; 
    } 
    else{
     $validation=$validation->errors(); 
    }
+}
+if(isset($_SESSION['data_basic'])){
+    $data=$_SESSION['data_basic'];
+    unset($_SESSION['data_basic']);
 }
 $jop=new jop($db);
 $jops=$jop->All();
@@ -141,8 +152,11 @@ $departments=$department->All();
                     <select class="form-control" id="department" name="department" >
                         <option value="">اخترالقسم</option>
                         <?php foreach($departments as $department){?>
-                        <option value="<?=$department['id']?>"> <?=$department['name']?></option>
-                        <?php }?>
+                            <?php if($department['id']==$data['department']){ ?>
+                        <option selected value="<?=$department['id']?>"> <?=$department['name']?></option>
+                        <?php } else{?>
+                            <option value="<?=$department['id']?>"> <?=$department['name']?></option>
+                        <?php }}?>
                     </select>
                 </div>
             </div>
@@ -168,15 +182,18 @@ $departments=$department->All();
                     <select class="form-control" id="department" name="jop" required>
                         <option value="">اختر الوظيفة</option>
                         <?php foreach($jops as $jop){?>
-                        <option value="<?=$jop['id']?>"> <?=$jop['name']?></option>
-                        <?php }?>
+                        <?php if($jop['id']==$data['jop']){ ?>
+                        <option selected value="<?=$jop['id']?>"> <?=$jop['name']?></option>
+                        <?php } else{?>
+                            <option value="<?=$jop['id']?>"> <?=$jop['name']?></option>
+                        <?php }}?>
                     </select>
                 </div>
             </div>
             <div class="col-md-6">
             <div class="form-group">
                     <label for="birthdate">تاريخ الميلاد: <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" id="birthdate" name="birthdate" required>
+                    <input type="date" class="form-control" id="birthdate" value="<?=$data['birthdate']??''?>" name="birthdate" required>
                 </div>
             </div>
         </div>
@@ -195,15 +212,36 @@ $departments=$department->All();
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <?php if(isset($data['image'])){ ?>
+            <div class="col-md-6">
+                <div class="form-group">
+                        <div class="col-md-3 text-center">
+                            <img id="profileImage" src="<?=$data['image']?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
+                            <input type="hidden" value="<?=$data['image']?>" name="img">
+                        </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="image">تعديل الصورة: <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*">
+                        <label class="custom-file-label" for="image">تعديل الصورة</label>
+                    </div>
+                </div>
+            </div>
+            <?php } else{ ?>
+                <div class="col-md-12">
                 <div class="form-group">
                     <label for="image">تحميل الصورة: <span class="text-danger">*</span></label>
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
-                        <label class="custom-file-label" for="image">اختر ملف الصورة</label>
+                        <label class="custom-file-label" for="image">رفع ملف الصورة</label>
                     </div>
                 </div>
             </div>
+            <?php }?>
+
             
         </div>
         <button type="submit" name="save" class="btn btn-primary">إضافة موظف</button>

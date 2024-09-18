@@ -2,6 +2,9 @@
 include('DB/database.php');
 include('DB/jop.php');
 include('Validattion/Validator.php');
+session_start();
+unset($_SESSION['data_basic']);
+unset($_SESSION['allowances']);
 $database = new Database();
 $db = $database->connect();
 if(isset($_POST['save'])){

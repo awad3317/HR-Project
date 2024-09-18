@@ -1,24 +1,51 @@
 <?php 
 include('DB/database.php');
 include('DB/employee.php');
-include('DB/file_type.php');
+include('DB/allowance.php');
 include('DB/jop.php');
 include('DB/department.php');
+include('Validattion/Validator.php');
+session_start();
 
 $database = new Database();
 $db = $database->connect();
-session_start();
-if(!isset($_SESSION['data'])){
+if(isset($_POST['save'])) {
+    $data=[
+        'type1'=>$_POST['type1'],
+        'allowance1'=>$_POST['allowance1'],
+        'type2'=>$_POST['type2'],
+        'allowance2'=>$_POST['allowance2'],
+    ];
+    $rules=[];
+    $validation= new Validator($db);
+    if($validation->validate($data,$rules)){
+        $_SESSION['allowances'] = $data;
+        header("Location: add_employee3.php");
+        exit; 
+    }
+    else{
+        $validation=$validation->errors(); 
+    }
+
+
+}
+if(isset($_GET['edit'])){
     header("location: add_employee.php");
 }
-$data = $_SESSION['data'];
-unset($_SESSION['data']);
+if(isset($_SESSION['allowances'])){
+    $allowances=$_SESSION['allowances'];
+    unset($_SESSION['allowances']);
+}
+if(!isset($_SESSION['data_basic'])){
+    header("location: add_employee.php");
+}
+$data = $_SESSION['data_basic'];
 $department=new department($db);
 $departments=$department->find($data['department']);
 $jops=new jop($db);
 $jop=$jops->find($data['jop']);
-$file_type=new file_type($db);
-$files_type=$file_type->All();
+$allowance_type=new allowance($db);
+$allowance_types=$allowance_type->All();
 ?>
 
 
@@ -113,105 +140,57 @@ $files_type=$file_type->All();
                 <p><strong>الوظيفة:</strong> <?php foreach($jop as $j){echo $j['name'];} ?> </p>
             </div>
             <div class="col-md-6 custom-col">
-                <p><strong>تعديل البيانات:</strong> <a href="" >تعديل</a> </p>
+                <p><strong>تعديل البيانات:</strong> <a href="add_employee2.php?edit=".true >تعديل</a> </p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<h3 class="text-center"> إضافة بدلات للموظف</h3>
+<form action="add_employee2.php" method="POST">
+    <div class="row">
+        <div class="col-md-6">
+            <label for="type1">النوع:</label>
+            <select class="form-control" id="type1" name="type1">
+                <option value="">اختر نوع البدل</option>
+                <?php foreach($allowance_types as $type){  ?>
+                <?php if($type['id']==$allowances['type1']){ ?>
+                <option selected value="<?=$type['id']?>"> <?=$type['name']?></option>
+                <?php } else{?>
+                <option value="<?=$type['id']?>"> <?=$type['name']?></option>
+                <?php }}?>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="email">المقدار :</label>
+                <input type="text" value="<?=$allowances['allowance1']??''?>" class="form-control" id="allowance1" name="allowance1">
             </div>
             
         </div>
     </div>
-</div>
-</div>
-<h3 class="text-center"> إضافة المرفقات</h3>
-<form action="" method="POST" enctype="multipart/form-data">
     <div class="row">
         <div class="col-md-6">
-            <div class="form-group">
-                <label for="image">البطاقة الشخصية  : <span class="text-danger">*</span></label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
-                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
-                </div>
-            </div>
+            <label for="type2">النوع:</label>
+            <select class="form-control" id="type2" name="type2">
+                <option value="">اختر نوع البدل</option>
+                <?php foreach($allowance_types as $type){  ?>
+                <?php if($type['id']==$allowances['type2']){ ?>
+                <option selected value="<?=$type['id']?>"> <?=$type['name']?></option>
+                <?php } else{?>
+                <option value="<?=$type['id']?>"> <?=$type['name']?></option>
+                <?php }}?>
+            </select>
         </div>
         <div class="col-md-6">
             <div class="form-group">
-                <label for="department">نوع المرفق: <span class="text-danger">*</span></label>
-                <select class="form-control" id="department" name="department[]" required>
-                    <option value="">اختر نوع المرفق</option>
-                    <?php foreach($files_type as $file_type) { ?>
-                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
-                    <?php } ?>
-                </select>
+                <label for="email">المقدار :</label>
+                <input type="text" value="<?=$allowances['allowance2']??''?>" class="form-control" id="allowance2" name="allowance2" >
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="image">السيرة الداتية  : </label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
-                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="department">نوع المرفق: </label>
-                <select class="form-control" id="department" name="department[]" required>
-                    <option value="">اختر نوع المرفق</option>
-                    <?php foreach($files_type as $file_type) { ?>
-                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="image">اخرى  :</label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
-                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="department">نوع المرفق: </label>
-                <select class="form-control" id="department" name="department[]" required>
-                    <option value="">اختر نوع المرفق</option>
-                    <?php foreach($files_type as $file_type) { ?>
-                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="image">اخرى  : </label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="image[]" accept="image/*" required multiple>
-                    <label class="custom-file-label" for="image">اختر ملف المرفق</label>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="department">نوع المرفق: </label>
-                <select class="form-control" id="department" name="department[]" required>
-                    <option value="">اختر نوع المرفق</option>
-                    <?php foreach($files_type as $file_type) { ?>
-                    <option value="<?= htmlspecialchars($file_type['id']) ?>"> <?= htmlspecialchars($file_type['type']) ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-    </div>
-    <button type="submit" name="save" class="btn btn-primary">إضافة مرفقات</button>
-</form>
+        <button type="submit" name="save" class="btn btn-primary">إضافة البدلات</button>
+    </form>
 
                 </div>
                 <!-- /.container-fluid -->

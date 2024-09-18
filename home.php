@@ -2,6 +2,9 @@
 include('DB/database.php');
 include('DB/employee.php');
 include('DB/department.php');
+session_start();
+unset($_SESSION['data_basic']);
+unset($_SESSION['allowances']);
 $database = new Database();
 $db = $database->connect();
 $employee = new employee($db);
