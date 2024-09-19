@@ -1,6 +1,7 @@
 <?php 
 include('DB/database.php');
 include('DB/jop.php');
+include('Validattion/Validator.php');
 session_start();
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
@@ -11,6 +12,21 @@ $jop=new jop($db);
 if(isset($_GET['id'])){
 $id= $_GET['id'];
 $jop->delete($id);
+}
+if(isset($_POST['save'])){
+    $data=[
+    'name'=>$_POST['name'],
+    ];
+    $rules=[
+        'name'=>'required'
+    ];
+    $validation= new Validator($db);
+    if($validation->validate($data,$rules)){
+        $id=$jop->Create($data);
+    } 
+   else{
+    $validation=$validation->errors(); 
+   }
 }
 $jops=$jop->All();
 $count=0;
@@ -64,57 +80,61 @@ $count=0;
                         <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الوظائف  </li> 
                     </ul>
-                    <h1 class="h3 mb-2 text-gray-800">الوظائف</h1>
+                    <h3 class="text-gray-800">إضافة وظيفة جديده</h3>
+                    <form action="" method="POST" enctype="multipart/form-daaa">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="name">الوظيفة: <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" name="save" class="btn btn-primary">إضافة الوظيفة</button>
+                    </form>
+                    <h3 class="mb-2 mt-5 text-gray-800">الوظائف</h3>
                     
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            
-                        
-                            <a class="btn btn-primary" href="add_jop.php">إضافة</a>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>الوظيفة</th>
-                                        <th>حذف</th>
-                                        <th>تعديل</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach($jops as $jop){ 
-                                    $count++ ?>
-                                    <tr>
-                                        <td><?=$count?></td>
-                                        <td><?=$jop['name']?></td>
-                                        <td><a href="jop.php?id=<?=$jop['id']?>" class="btn btn-primary" >حذف</a></td>
-                                        <td><a href="home.php" class="btn btn-danger" name="Update" value="<?=$jop['id']?>">تعديل</a></td>
-                                    </tr>
-                                    <?php }?>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>الوظيفة</th>
+                                            <th>حذف</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($jops as $jop){ 
+                                        $count++ ?>
+                                        <tr>
+                                            <td><?=$count?></td>
+                                            <td><?=$jop['name']?></td>
+                                            <td><a href="jop.php?id=<?=$jop['id']?>" class="btn btn-outline-danger" >حذف</a></td>
+                                        </tr>
+                                        <?php }?>
 
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-                <!-- /.container-fluid -->
+            <!-- /.container-fluid -->
 
         </div>
-            <!-- End of Main Content -->
+    </div>
+    <!-- End of Main Content -->
 
-            <!-- Footer -->
-           <?php include("footer.html") ?>
-            <!-- End of Footer -->
-
+    <!-- Footer -->
+    <?php include("footer.html") ?>
+    <!-- End of Footer -->
 
     <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+    <?php include("Scroll.html") ?>
 
     <!-- Logout Modal-->
     <?php include("Logout_model.html") ?>

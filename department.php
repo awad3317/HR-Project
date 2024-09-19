@@ -1,6 +1,7 @@
 <?php 
 include('DB/database.php');
 include('DB/department.php');
+include('Validattion/Validator.php');
 session_start();
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
@@ -11,6 +12,13 @@ $department=new department($db);
 if(isset($_GET['id'])){
 $id= $_GET['id'];
 $department->delete($id);
+}
+if(isset($_POST['save'])){
+    $data=[
+    'name'=>$_POST['name'],
+    'description'=>$_POST['description'],
+    ];
+    $id=$department->Create($data);
 }
 $departments=$department->All();
 $count=0;
@@ -64,15 +72,31 @@ $count=0;
                         <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الاقسام  </li> 
                     </ul>
-                    <h1 class="h3 mb-2 text-gray-800">الاقسام</h1>
+                    <h1>إضافة قسم جديد</h1>
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">القسم: <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" >
+                                </div>
+                            </div>
+                        
+                        
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email"> التفاصيل : </label>
+                                    <input type="text" class="form-control"  id="description" name="description">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" name="save" class="btn btn-primary">إضافة القسم</button>
+                    </form>
+                    <h1 class="h3 mb-2 mt-5 text-gray-800">الاقسام</h1>
                     
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            
-                        
-                            <a class="btn btn-primary" href="add_department.php">إضافة</a>
-                        
                         <div class="table-responsive">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
@@ -81,7 +105,6 @@ $count=0;
                                         <th>القسم</th>
                                         <th>تفاصيل</th>
                                         <th>حذف</th>
-                                        <th>تعديل</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -91,8 +114,7 @@ $count=0;
                                         <td><?=$count?></td>
                                         <td><?=$department['name']?></td>
                                         <td><?=$department['description']?></td>
-                                        <td><a href="department.php?id=<?=$department['id']?>" class="btn btn-primary" >حذف</a></td>
-                                        <td><a href="home.php" class="btn btn-danger" name="Update" value="<?=$department['id']?>">تعديل</a></td>
+                                        <td><a href="department.php?id=<?=$department['id']?>" class="btn btn-outline-danger" >حذف</a></td>
                                     </tr>
                                     <?php }?>
 
@@ -114,9 +136,7 @@ $count=0;
 
 
     <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+    <?php include("Scroll.html") ?>
 
     <!-- Logout Modal-->
     <?php include("Logout_model.html") ?>

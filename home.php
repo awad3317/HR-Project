@@ -65,10 +65,10 @@ $departments=$department->Count();
                             <li class="breadcrumb-item">الرئيسية </li> 
                         </ul>
                         <div class="d-flex">
-                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm me-2">
+                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm me-2">
                                 <i class="fas fa-download fa-sm text-white-50"></i> توليد تقرير
                             </a>
-                            <a href="add_employee.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                            <a href="add_employee.php" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
                                 <i class="fas fa-sm text-white-50"></i> إضافة موظف
                             </a>
                         </div>
@@ -255,29 +255,13 @@ $departments=$department->Count();
     <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+    <?php include("Scroll.html") ?>
 
     <!-- Logout Modal-->
    <?php include('Logout_model.html') ?>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/chart.js/Chart.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/chart-area-demo.js"></script>
-    <script src="js/demo/chart-pie-demo.js"></script>
+    <?php include("script.html") ?>
 
 </body>
 

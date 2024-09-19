@@ -209,25 +209,20 @@ $allowance_types=$allowance_type->All();
     <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+    <?php include("Scroll.html") ?>
 
     <!-- Logout Modal-->
     <?php include('Logout_model.html') ?>
 
     <!-- Bootstrap core JavaScript-->
    <?php include("script.html") ?>
+
     <script>
-    // تحديث نص التسمية عند اختيار ملف
     document.querySelector('.custom-file-input').addEventListener('change', function (event) {
         const fileName = event.target.files[0]?.name || 'تصفح';
         const label = event.target.nextElementSibling;
         label.textContent = fileName;
     });
 </script>
-
 </body>
-
-
 </html>

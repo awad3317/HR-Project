@@ -29,6 +29,14 @@ if(isset($_POST['save'])) {
         'type3'=>$_POST['type3'],
     ];
     $employee=new employee($db);
+    // decode image and save the file and save the path in table
+    $arr=explode(';base64,',$data_basic['image']);
+    $content=$arr[1];
+    $extension=explode('image/',$arr[0])[1];
+    $path='Upload/'.random_int(9909,999999).'.'.$extension;
+    file_put_contents($path,base64_decode($content));
+    $data_basic['image']=$path;
+    // 
     $employee_id=$employee->Create($data_basic);
     $allowances['employee_id']=$employee_id;
     $allowance_employee=new allowance_employee($db);
@@ -143,8 +151,6 @@ if($type2 !=''){
                         <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
                         <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                     </ul>
-
-                    
                     <h3 class="text-center">بيانات الموظف الاساسية</h3>
                     <div class="row mb-4 justify-content-center">
                         <div class="col-md-3 text-center">
@@ -283,9 +289,7 @@ if($type2 !=''){
     <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+    <?php include("Scroll.html") ?>
 
     <!-- Logout Modal-->
     <?php include('Logout_model.html') ?>
