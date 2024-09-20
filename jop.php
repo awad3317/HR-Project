@@ -137,17 +137,17 @@ $count=0;
         preConfirm: () => {
             return document.getElementById("swal-input").value;
         },
-        confirmButtonText: 'إضافة', // تغيير نص الزر إلى "إضافة"
+        confirmButtonText: 'إضافة', 
         customClass: {
-            confirmButton: 'btn btn-success' // إضافة فئة Bootstrap
+            confirmButton: 'btn btn-success' 
         }
     });
 
     if (jobName) {
-        // إنشاء نموذج وإرساله
+       
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = window.location.href; // العودة إلى نفس الصفحة
+        form.action = window.location.href; 
 
         const inputName = document.createElement('input');
         inputName.type = 'hidden';
