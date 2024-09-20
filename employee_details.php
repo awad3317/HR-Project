@@ -2,6 +2,7 @@
 include('DB/database.php');
 include('DB/employee.php');
 include('DB/allowance.php');
+include('DB/advance.php');
 include('DB/file.php');
 include('DB/jop.php');
 include('DB/department.php');
@@ -14,9 +15,20 @@ session_start();
 $database = new Database();
 $db = $database->connect();
 
-if(!isset($_GET['id']) and !isset($_POST['save'])){
+if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok'])){
     header("location: Employee.php");
 }
+if(isset($_POST['ok'])){
+    $data=[
+        'amount'=>$_POST['amount'],
+        'date'=>date_format(date_create(),'Y-m-d'),
+        'employee_id'=>$_POST['emp_id']
+    ];
+    $advance= new advance($db);
+    $advance->Create($data);
+    $emp_id=$_POST['emp_id'];
+}
+
 if(isset($_POST['save'])){
     $data=[
         'type1'=>$_POST['type'],
@@ -43,6 +55,7 @@ $emp_allowance=$employee->select("SELECT allowance_employee.amount AS amount, al
                                 JOIN allowances ON allowance_employee.allowance_id = allowances.id 
                                 WHERE allowance_employee.employee_id=$emp_id");
 $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOIN file ON emp_file.file_id = file.id WHERE emp_file.employee_id = $emp_id ");
+$emp_advance=$employee->select("SELECT * FROM advances WHERE employee_id = $emp_id");
 $allowance= new allowance($db);
 $allowances=$allowance->All();
 ?>
@@ -167,33 +180,71 @@ $allowances=$allowance->All();
                                 </table>
                             </div>
                         </div>
-            <div class="col-md-6">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-            <h3 class="text-center">مرفقات الموظف</h3>
-            <button class="btn btn-outline-secondary btn-sm">إضافة مرفق</button>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered border-bottom-success" width="100%">
-                
-                <tbody>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h3 class="text-center">مرفقات الموظف</h3>
+                                <button class="btn btn-outline-secondary btn-sm">إضافة مرفق</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered border-bottom-success" width="100%">
+                                    <tbody>
+                                        <?php foreach($emp_file as $file) { ?>
+                                        <tr>
+                                            <th class="text-center bg-gray-200"><?=$file['type']?></th>
+                                            <th class="text-center">
+                                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
+                                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
+                                            </th> 
+                                        </tr>
+                                        <?php } ?>
                     
-                    <?php foreach($emp_file as $file) { ?>
-                        <tr>
-                            <th class="text-center bg-gray-200"><?=$file['type']?></th>
-                            <th class="text-center">
-                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
-                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
-                            </th> 
-                        </tr>
-                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h3 class="text-center">سلفات الموظف</h3>
+                                <button class="btn btn-outline-secondary btn-sm" id="add-advance-btn">طلب سلفه جديده</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered border-bottom-success" width="100%">
+                                    <tbody>
+                                        <?php $total=0; foreach($emp_advance as $advance) { ?>
+                                        <tr>
+                                            <th class="text-center bg-gray-200"><?=$advance['date']?></th>
+                                            <th class="text-center"><?=$advance['amount']?></th> 
+                                        </tr>
+                                        <?php $total+=$advance['amount']; } ?>
+                                        <tr>
+                                            <th class="text-center bg-gray-200">الاجمالي</th>
+                                            <th class="text-center"><?=$total?></th> 
+                                        </tr>
+                                    </tbody>
+                                    
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h3 class="text-center">إجازات الموظف</h3>
+                                <button class="btn btn-outline-secondary btn-sm">طلب إاجازة جديده</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered border-bottom-success" width="100%">
+                                    <tbody>
+                                        <?php $total=0; foreach($emp_advance as $advance) { ?>
+                                        <tr>
+                                            <th class="text-center bg-gray-200"><?=$advance['date']?></th>
+                                            <th class="text-center"><?=$advance['amount']?></th> 
+                                        </tr>
+                                        <?php } ?>
                     
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-                    
-                    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>  
                 </div>
                 <!-- /.container-fluid -->
 
@@ -220,7 +271,7 @@ $allowances=$allowance->All();
    <?php include("script.html") ?>
 
    <script>
-document.getElementById('add-allowance-btn').addEventListener('click', async () => {
+    document.getElementById('add-allowance-btn').addEventListener('click', async () => {
     const allowancesOptions = `
         <?php foreach ($allowances as $allowance) { ?>
             <option value="<?= $allowance['id'] ?>"><?= $allowance['name'] ?></option>
@@ -291,6 +342,65 @@ document.getElementById('add-allowance-btn').addEventListener('click', async () 
     }
 });
 </script>
+<script>
+       document.getElementById('add-advance-btn').addEventListener('click', async () => {
+    const { value: amount_value } = await Swal.fire({
+        title: ' طلب سلفه جديد',
+        html: `
+           <div class="d-flex justify-content-between align-items-center">
+                <h5 class="m-0">مقدار السلفه  </h5>
+            </div>
+            <input id="swal-input-advance" class="form-control mt-2" placeholder="المقدار">
+        `,
+        focusConfirm: false, 
+        preConfirm: () => {
+            const amount = document.getElementById("swal-input-advance").value;
+            if (!amount) {
+                Swal.showValidationMessage('يرجى إدخال مقدار السلفه');
+                return false;
+        }
+            return amount;
+        },
+        confirmButtonText: 'تأكيد', 
+        cancelButtonText: 'إلغاء',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton:  'btn btn-secondary'
+        },
+        showCancelButton: true,
+        
+        
+    });
+
+    if (amount_value) {
+       
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href; 
+
+        const advance_amount = document.createElement('input');
+        advance_amount.type = 'hidden';
+        advance_amount.name = 'amount';
+        advance_amount.value = amount_value;
+        form.appendChild(advance_amount);
+
+        const empIdInput = document.createElement('input');
+        empIdInput.type = 'hidden';
+        empIdInput.name = 'emp_id';
+        empIdInput.value = <?=$emp_id?>;
+        form.appendChild(empIdInput);
+
+        const inputSave = document.createElement('input');
+        inputSave.type = 'hidden';
+        inputSave.name = 'ok';
+        inputSave.value = 'true';
+        form.appendChild(inputSave);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+    </script>
    
 </body>
 </html>
