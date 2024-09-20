@@ -133,8 +133,8 @@ $count=0;
             const { value: formValues } = await Swal.fire({
                 title: 'إضافة قسم',
                 html: `
-                    <input id="swal-input-name" class="swal2-input" placeholder="اسم القسم" required>
-                    <input id="swal-input-description" class="swal2-input" placeholder="تفاصيل القسم">
+                    <input id="swal-input-name" class=" form-control mt-2"  placeholder="اسم القسم" required>
+                    <input id="swal-input-description" class="form-control mt-2" placeholder="تفاصيل القسم">
                 `,
                 focusConfirm: false,
                 preConfirm: () => {
@@ -149,9 +149,12 @@ $count=0;
             ];
         },
                 confirmButtonText: 'إضافة',
+                cancelButtonText: 'إلغاء',
                 customClass: {
-                    confirmButton: 'btn btn-success'
-                }
+                    confirmButton: 'btn btn-success',
+                    cancelButton:  'btn btn-secondary'
+                },
+                showCancelButton: true,
             });
 
             if (formValues) {

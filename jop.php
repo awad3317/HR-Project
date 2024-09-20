@@ -129,9 +129,12 @@ $count=0;
     <script>
        document.getElementById('add-job-btn').addEventListener('click', async () => {
     const { value: jobName } = await Swal.fire({
-        title: 'إضافة اسم وظيفة',
+        title: ' إضافة وظيفة جديد',
         html: `
-            <input id="swal-input" class="swal2-input" placeholder="اسم الوظيفة">
+           <div class="d-flex justify-content-between align-items-center">
+                <h5 class="m-0"> اسم وظيفة</h5>
+            </div>
+            <input id="swal-input" class="form-control mt-2" placeholder="اسم الوظيفة">
         `,
         focusConfirm: false, 
         preConfirm: () => {
@@ -143,9 +146,14 @@ $count=0;
             return name;
         },
         confirmButtonText: 'إضافة', 
+        cancelButtonText: 'إلغاء',
         customClass: {
-            confirmButton: 'btn btn-success' 
-        }
+            confirmButton: 'btn btn-success',
+            cancelButton:  'btn btn-secondary'
+        },
+        showCancelButton: true,
+        
+        
     });
 
     if (jobName) {

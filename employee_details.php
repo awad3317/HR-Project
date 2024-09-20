@@ -14,24 +14,37 @@ session_start();
 $database = new Database();
 $db = $database->connect();
 
-if(!isset($_GET['id'])){
+if(!isset($_GET['id']) and !isset($_POST['save'])){
     header("location: Employee.php");
 }
-$emp_id=$_GET['id'];
+if(isset($_POST['save'])){
+    $data=[
+        'type1'=>$_POST['type'],
+        'allowance1'=>$_POST['amount'],
+        'employee_id'=>$_POST['emp_id']
+    ];
+    $allowance_employee= new allowance_employee($db);
+    $allowance_employee->Create($data);
+    $emp_id=$_POST['emp_id'];
+}
+if(isset($_GET['id'])){
+    $emp_id=$_GET['id'];
+}
 
 //Get the employee
 $employee= new employee($db);
-$emp = $employee->select("SELECT emp.*, dep.name AS dep_name, jop.name AS jop_name, sum(adv.amount) AS total
+$emp = $employee->select("SELECT emp.*, dep.name AS dep_name, jop.name AS jop_name
                         FROM employees AS emp 
                         JOIN departments AS dep ON emp.department_id = dep.id
                         JOIN jops AS jop ON emp.jop_id = jop.id
-                        JOIN advances AS adv ON emp.id = adv.employee_id
                         WHERE emp.id = $emp_id");
 
 $emp_allowance=$employee->select("SELECT allowance_employee.amount AS amount, allowances.name AS allowance_name FROM allowance_employee 
                                 JOIN allowances ON allowance_employee.allowance_id = allowances.id 
                                 WHERE allowance_employee.employee_id=$emp_id");
-$emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOIN file ON emp_file.file_id = file.id WHERE emp_file.employee_id = $emp_id ")
+$emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOIN file ON emp_file.file_id = file.id WHERE emp_file.employee_id = $emp_id ");
+$allowance= new allowance($db);
+$allowances=$allowance->All();
 ?>
 
 
@@ -136,25 +149,24 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
                     </div>
                     
                     <div class="row mb-4 justify-content-center">
-    <div class="col-md-6">
-    <div class="d-flex justify-content-between align-items-center mb-1">
-            <h3 class="text-center">بدلات الموظف</h3>
-            <button class="btn btn-outline-secondary btn-sm">إضافة بدل</button>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered border-bottom-success" width="100%">
-                
-                <tbody>
-                        <?php foreach($emp_allowance as $allowance) { ?>
-                        <tr>
-                            <th class="text-center bg-gray-200"><?=$allowance['allowance_name']?></th>
-                            <th class="text-center"><?=$allowance['amount']?></th>
-                        </tr>
-                        <?php } ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h3 class="text-center">بدلات الموظف</h3>
+                                <button class="btn btn-outline-secondary btn-sm" id="add-allowance-btn">إضافة بدل</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered border-bottom-success" width="100%">
+                                    <tbody>
+                                        <?php foreach($emp_allowance as $allowance) { ?>
+                                        <tr>
+                                            <th class="text-center bg-gray-200"><?=$allowance['allowance_name']?></th>
+                                            <th class="text-center"><?=$allowance['amount']?></th>
+                                        </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
             <div class="col-md-6">
                 <div class="d-flex justify-content-between align-items-center mb-1">
             <h3 class="text-center">مرفقات الموظف</h3>
@@ -169,8 +181,8 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
                         <tr>
                             <th class="text-center bg-gray-200"><?=$file['type']?></th>
                             <th class="text-center">
-                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary" download="مرفق">تحميل</a>
-                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success">فتح</a>
+                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
+                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
                             </th> 
                         </tr>
                     <?php } ?>
@@ -207,6 +219,78 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
     <!-- Bootstrap core JavaScript-->
    <?php include("script.html") ?>
 
+   <script>
+document.getElementById('add-allowance-btn').addEventListener('click', async () => {
+    const allowancesOptions = `
+        <?php foreach ($allowances as $allowance) { ?>
+            <option value="<?= $allowance['id'] ?>"><?= $allowance['name'] ?></option>
+        <?php } ?>
+    `;
+
+    const { value: formValues } = await Swal.fire({
+        title: 'إضافة بدل',
+        html: `
+            <select id="allowance-select" class="form-control mb-2">
+                <option value="">اختر نوع البدل</option>
+                ${allowancesOptions}
+            </select>
+            <input id="amount-input" type="text" class="form-control" placeholder="المبلغ">
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+            const allowanceId = document.getElementById("allowance-select").value;
+            const amountValue = document.getElementById("amount-input").value;
+            if (!allowanceId || !amountValue) {
+                Swal.showValidationMessage('يرجى إدخال جميع الحقول');
+                return false;
+            }
+            return [allowanceId, amountValue];
+        },
+        confirmButtonText: 'إضافة', 
+        cancelButtonText: 'إلغاء',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-secondary'
+        },
+        showCancelButton: true,
+    });
+
+    if (formValues) {
+        const [allowanceId, amountValue] = formValues;
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href; 
+
+        const allowanceInput = document.createElement('input');
+        allowanceInput.type = 'hidden';
+        allowanceInput.name = 'type';
+        allowanceInput.value = allowanceId; // استخدم allowanceId هنا
+        form.appendChild(allowanceInput);
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'hidden';
+        amountInput.name = 'amount';
+        amountInput.value = amountValue; // استخدم amountValue هنا
+        form.appendChild(amountInput);
+
+        const empIdInput = document.createElement('input');
+        empIdInput.type = 'hidden';
+        empIdInput.name = 'emp_id';
+        empIdInput.value = <?=$emp_id?>;
+        form.appendChild(empIdInput);
+
+        const inputSave = document.createElement('input');
+        inputSave.type = 'hidden';
+        inputSave.name = 'save';
+        inputSave.value = 'true';
+        form.appendChild(inputSave);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
    
 </body>
 </html>
