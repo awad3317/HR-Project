@@ -20,3 +20,28 @@
     <!-- Page level custom scripts -->
     <script src="js/demo/chart-area-demo.js"></script>
     <script src="js/demo/chart-pie-demo.js"></script>
+
+    <script src="js/sweetalert2.all.min.js"></script>
+    <script>
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                Swal.fire({
+                    title: '<span style="color: #28a745;">!هل أنت متأكد؟</span>',
+                    text: "لا يمكن التراجع عن هذا الإجراء!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، احذف!',
+                    cancelButtonText: 'لا، تراجع!',
+                    customClass: {
+                        confirmButton: 'btn btn-outline-danger',  
+                        cancelButton: 'btn btn-secondary' 
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `?id=${id}`;
+                    }
+                });
+            });
+        });
+    </script>

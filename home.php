@@ -33,6 +33,7 @@ $departments=$department->Count();
    
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
 
 </head>
 

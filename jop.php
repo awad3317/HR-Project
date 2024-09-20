@@ -17,16 +17,8 @@ if(isset($_POST['save'])){
     $data=[
     'name'=>$_POST['name'],
     ];
-    $rules=[
-        'name'=>'required'
-    ];
-    $validation= new Validator($db);
-    if($validation->validate($data,$rules)){
-        $id=$jop->Create($data);
-    } 
-   else{
-    $validation=$validation->errors(); 
-   }
+    $id=$jop->Create($data);
+    $message = "تم إضافة الوظيفة بنجاح.";
 }
 $jops=$jop->All();
 $count=0;
@@ -51,6 +43,7 @@ $count=0;
    
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.css" rel="stylesheet">
+    
 
 </head>
 
@@ -80,19 +73,9 @@ $count=0;
                         <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الوظائف  </li> 
                     </ul>
-                    <h3 class="text-gray-800">إضافة وظيفة جديده</h3>
-                    <form action="" method="POST" enctype="multipart/form-daaa">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="name">الوظيفة: <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" name="save" class="btn btn-primary">إضافة الوظيفة</button>
-                    </form>
-                    <h3 class="mb-2 mt-5 text-gray-800">الوظائف</h3>
+                    
+                    <button id="add-job-btn" class="btn btn-primary">إضافة وظيفة</button>
+                    <h3 class="mb-2 mt-3 text-gray-800">الوظائف</h3>
                     
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -112,7 +95,9 @@ $count=0;
                                         <tr>
                                             <td><?=$count?></td>
                                             <td><?=$jop['name']?></td>
-                                            <td><a href="jop.php?id=<?=$jop['id']?>" class="btn btn-outline-danger" >حذف</a></td>
+                                            <td>
+                                                <button class="btn btn-outline-danger delete-button" data-id="<?= $jop['id'] ?>">حذف</button>
+                                            </td>
                                         </tr>
                                         <?php }?>
 
@@ -141,6 +126,58 @@ $count=0;
 
     <!-- Bootstrap core JavaScript-->
     <?php include("script.html") ?>
+    <script>
+       document.getElementById('add-job-btn').addEventListener('click', async () => {
+    const { value: jobName } = await Swal.fire({
+        title: 'إضافة اسم وظيفة',
+        html: `
+            <input id="swal-input" class="swal2-input" placeholder="اسم الوظيفة">
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+            return document.getElementById("swal-input").value;
+        },
+        confirmButtonText: 'إضافة', // تغيير نص الزر إلى "إضافة"
+        customClass: {
+            confirmButton: 'btn btn-success' // إضافة فئة Bootstrap
+        }
+    });
+
+    if (jobName) {
+        // إنشاء نموذج وإرساله
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href; // العودة إلى نفس الصفحة
+
+        const inputName = document.createElement('input');
+        inputName.type = 'hidden';
+        inputName.name = 'name';
+        inputName.value = jobName;
+        form.appendChild(inputName);
+
+        const inputSave = document.createElement('input');
+        inputSave.type = 'hidden';
+        inputSave.name = 'save';
+        inputSave.value = 'true';
+        form.appendChild(inputSave);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+    </script>
+     <?php if (isset($message)): ?>
+        <script>
+             Swal.fire({
+            title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+            text: '<?php echo isset($message) ? $message : ""; ?>',
+            icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+            timer: 2000, 
+            showConfirmButton: false
+        });
+        </script>
+    <?php endif; ?>
+
 
 </body>
 

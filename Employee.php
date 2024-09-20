@@ -122,8 +122,6 @@ $count=0;
 
     <!-- Bootstrap core JavaScript-->
    <?php include("script.html") ?>
-   <script>
-</script>
 
 </body>
 

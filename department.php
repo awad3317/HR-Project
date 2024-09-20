@@ -19,6 +19,7 @@ if(isset($_POST['save'])){
     'description'=>$_POST['description'],
     ];
     $id=$department->Create($data);
+    $message = "تم إضافة القسم بنجاح.";
 }
 $departments=$department->All();
 $count=0;
@@ -71,27 +72,8 @@ $count=0;
                     <ul  class="breadcrumb m-3">
                         <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الاقسام  </li> 
-                    </ul>
-                    <h1>إضافة قسم جديد</h1>
-                    <form action="" method="POST" enctype="multipart/form-data">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="name">القسم: <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="name" name="name" >
-                                </div>
-                            </div>
-                        
-                        
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email"> التفاصيل : </label>
-                                    <input type="text" class="form-control"  id="description" name="description">
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" name="save" class="btn btn-primary">إضافة القسم</button>
-                    </form>
+                    </ul>  
+                    <button id="add-department-btn" class="btn btn-primary">إضافة قسم</button>
                     <h1 class="h3 mb-2 mt-5 text-gray-800">الاقسام</h1>
                     
                     <!-- DataTales Example -->
@@ -114,7 +96,9 @@ $count=0;
                                         <td><?=$count?></td>
                                         <td><?=$department['name']?></td>
                                         <td><?=$department['description']?></td>
-                                        <td><a href="department.php?id=<?=$department['id']?>" class="btn btn-outline-danger" >حذف</a></td>
+                                        <td>
+                                            <button class="btn btn-outline-danger delete-button" data-id="<?= $department['id'] ?>">حذف</button>
+                                        </td>
                                     </tr>
                                     <?php }?>
 
@@ -143,6 +127,76 @@ $count=0;
 
     <!-- Bootstrap core JavaScript-->
     <?php include("script.html") ?>
+
+    <script>
+        document.getElementById('add-department-btn').addEventListener('click', async () => {
+            const { value: formValues } = await Swal.fire({
+                title: 'إضافة قسم',
+                html: `
+                    <input id="swal-input-name" class="swal2-input" placeholder="اسم القسم" required>
+                    <input id="swal-input-description" class="swal2-input" placeholder="تفاصيل القسم">
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+            const name = document.getElementById("swal-input-name").value;
+            if (!name) {
+                Swal.showValidationMessage('يرجى إدخال اسم القسم');
+                return false;
+            }
+            return [
+                name,
+                document.getElementById("swal-input-description").value
+            ];
+        },
+                confirmButtonText: 'إضافة',
+                customClass: {
+                    confirmButton: 'btn btn-success'
+                }
+            });
+
+            if (formValues) {
+                const [name, description] = formValues;
+              
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = window.location.href;
+
+                const inputName = document.createElement('input');
+                inputName.type = 'hidden';
+                inputName.name = 'name';
+                inputName.value = name;
+                form.appendChild(inputName);
+
+                const inputDetails = document.createElement('input');
+                inputDetails.type = 'hidden';
+                inputDetails.name = 'description';
+                inputDetails.value = description;
+                form.appendChild(inputDetails);
+
+                const inputSave = document.createElement('input');
+                inputSave.type = 'hidden';
+                inputSave.name = 'save';
+                inputSave.value = 'true';
+                form.appendChild(inputSave);
+
+                document.body.appendChild(form);
+                form.submit(); 
+            }
+        });
+    </script>
+
+    <?php if (isset($message)){ ?>
+        <script>
+            Swal.fire({
+                title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+                text: '<?php echo isset($message) ? $message : ""; ?>',
+                icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        </script>
+    <?php } ; ?>
+
 
 </body>
 
