@@ -7,7 +7,6 @@ include('Validattion/Validator.php');
 $database = new Database();
 $db = $database->connect();
 session_start();
-
 if(isset($_POST['save'])) {
     $data=[
         'name'=>$_POST['name'],
@@ -101,7 +100,7 @@ $departments=$department->All();
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -109,8 +108,8 @@ $departments=$department->All();
 
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
-                            <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                            <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
+                            <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
+                            <li class="breadcrumb-item "><a href="Employee.php" class='text-success'>الموظفين</a> </li>
                             <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
                     <h1 class="h3 mb-2 text-gray-800">المعلومات الاساسية </h1>
@@ -119,7 +118,7 @@ $departments=$department->All();
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="name">الاسم: <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['name'][0])){echo $validation['name'][0];}?></span></label>
-                                    <input type="text" class="form-control" value="<?=$data['name']??''?>" id="name" name="name" >
+                                    <input type="text" class="form-control" value="<?=$data['name']??''?>" id="name" name="name" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -129,7 +128,6 @@ $departments=$department->All();
                                 </div>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -149,7 +147,7 @@ $departments=$department->All();
             <div class="col-md-6">
             <div class="form-group">
                     <label for="department">القسم: <span class="text-danger">*</span></label>
-                    <select class="form-control" id="department" name="department" >
+                    <select class="form-control" id="department" name="department" required>
                         <option value="">اخترالقسم</option>
                         <?php foreach($departments as $department){?>
                             <?php if($department['id']==$data['department']){ ?>
@@ -252,7 +250,7 @@ $departments=$department->All();
 
             
         </div>
-        <button type="submit" name="save" class="btn btn-primary">إضافة موظف</button>
+        <button type="submit" name="save" class="btn btn-outline-success">إضافة موظف</button>
     </form>
                 
 

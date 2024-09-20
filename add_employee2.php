@@ -91,7 +91,7 @@ $allowance_types=$allowance_type->All();
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -99,8 +99,8 @@ $allowance_types=$allowance_type->All();
 
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
-                            <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                            <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
+                            <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
+                            <li class="breadcrumb-item "><a href="Employee.php" class='text-success'>الموظفين</a> </li>
                             <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                          </ul>
 
@@ -189,7 +189,7 @@ $allowance_types=$allowance_type->All();
             </div>
         </div>
     </div>
-        <button type="submit" name="save" class="btn btn-primary">إضافة البدلات</button>
+        <button type="submit" name="save" class="btn btn-outline-success">إضافة البدلات</button>
     </form>
 
                 </div>

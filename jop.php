@@ -63,18 +63,18 @@ $count=0;
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
                     <ul  class="breadcrumb m-3">
-                        <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
+                        <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الوظائف  </li> 
                     </ul>
                     
-                    <button id="add-job-btn" class="btn btn-primary">إضافة وظيفة</button>
+                    <button id="add-job-btn" class="btn btn-outline-success">إضافة وظيفة</button>
                     <h3 class="mb-2 mt-3 text-gray-800">الوظائف</h3>
                     
                     <!-- DataTales Example -->
@@ -133,9 +133,14 @@ $count=0;
         html: `
             <input id="swal-input" class="swal2-input" placeholder="اسم الوظيفة">
         `,
-        focusConfirm: false,
+        focusConfirm: false, 
         preConfirm: () => {
-            return document.getElementById("swal-input").value;
+            const name = document.getElementById("swal-input").value;
+            if (!name) {
+                Swal.showValidationMessage('يرجى إدخال اسم الوظيفة');
+                return false;
+        }
+            return name;
         },
         confirmButtonText: 'إضافة', 
         customClass: {

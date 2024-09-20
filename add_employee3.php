@@ -75,7 +75,7 @@ if(isset($_POST['save'])) {
         $data['path1']=$path;
         $employee_file->Create($data);
     }
-   header("location: Employee.php");
+   header("location: Employee.php?message=true");
 }
 $department=new department($db);
 $departments=$department->find($data_basic['department']);
@@ -139,7 +139,7 @@ if($type2 !=''){
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -147,8 +147,8 @@ if($type2 !=''){
 
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
-                        <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                        <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
+                        <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
+                        <li class="breadcrumb-item "><a href="Employee.php" class='text-success'>الموظفين</a> </li>
                         <li class="breadcrumb-item active">إضافة موظف جديد </li> 
                     </ul>
                     <h3 class="text-center">بيانات الموظف الاساسية</h3>
@@ -269,7 +269,7 @@ if($type2 !=''){
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" name="save" class="btn btn-primary">رفع جميع المرفقات</button>
+                        <button type="submit" name="save" class="btn btn-outline-success">رفع جميع المرفقات والبيانات</button>
                     </form>
 
                 </div>

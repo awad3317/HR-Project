@@ -49,7 +49,7 @@ $count=0;
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->

@@ -55,7 +55,7 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -96,12 +96,12 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
                         <h3 class="text-center">جميع السلف</h3>
                         <div class="col-md-8">
                             <div class="table-responsive">
-                                <table class="table table-bordered "width="100%">
+                                <table class="table table-bordered border-bottom-success"width="100%">
                                     <thead>
                                         <tr>
-                                            <th class="bg-gradient-success text-gray-100">#</th>
-                                            <th class="bg-gradient-success text-gray-100">المبلغ</th>
-                                            <th class="bg-gradient-success text-gray-100">التاريخ </th>
+                                            <th class=" bg-gray-300">#</th>
+                                            <th class=" bg-gray-300">المبلغ</th>
+                                            <th class=" bg-gray-300">التاريخ </th>
                                             
                                         </tr>
                                     </thead>

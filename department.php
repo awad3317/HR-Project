@@ -63,17 +63,17 @@ $count=0;
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
                     <ul  class="breadcrumb m-3">
-                        <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
+                        <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الاقسام  </li> 
                     </ul>  
-                    <button id="add-department-btn" class="btn btn-primary">إضافة قسم</button>
+                    <button id="add-department-btn" class="btn btn-outline-success">إضافة قسم</button>
                     <h1 class="h3 mb-2 mt-5 text-gray-800">الاقسام</h1>
                     
                     <!-- DataTales Example -->

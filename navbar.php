@@ -1,3 +1,7 @@
+ <?php
+$date= date_format(date_create(),'d/m/Y') ;
+ 
+ ?>
  <!-- Topbar -->
  <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -19,6 +23,8 @@
             </div>
         </div>
     </form>
+    <p class="h4"><strong class="text-success"> تاريخ اليوم :</strong> <?=$date?> </p>
+    <h3 ></h3>
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">

@@ -4,6 +4,11 @@ include('DB/employee.php');
 session_start();
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
+$page=explode('/',$_SERVER['HTTP_REFERER'] ?? '');
+if(isset($_GET['message']) && end($page) =='add_employee3.php'){
+    $message='تم إضافة الموظف بنجاح ';
+    $_GET['message']=='false';
+}
 $database = new Database();
 $db = $database->connect();
 $employee = new employee($db);
@@ -48,7 +53,7 @@ $count=0;
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -56,7 +61,7 @@ $count=0;
 
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
-                        <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
+                        <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
                         <li class="breadcrumb-item active">الموظفين </li> 
                     </ul>
                     <h1 class="h3 mb-2 text-gray-800">الموظفين</h1>
@@ -66,7 +71,7 @@ $count=0;
                        
                         <div class="card-body">
                             <div class="table-responsive">
-                                <a class="btn btn-primary" href="add_employee.php">إضافة موظف جديد</a>
+                                <a class="btn btn-outline-success" href="add_employee.php">إضافة موظف جديد</a>
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
@@ -89,7 +94,7 @@ $count=0;
                                         <td><?=$employee['phone']?></td>
                                         <td><?=$employee['department']?></td>
                                         <td><?=$employee['basic_salary']?></td>
-                                        <td><a href="employee_details.php?id=<?=$employee['id']?>"><button class="btn btn-outline-primary">التفاصيل</button></a></td>
+                                        <td><a href="employee_details.php?id=<?=$employee['id']?>"><button class="btn btn-outline-secondary">التفاصيل</button></a></td>
                                     </tr>
                                     <?php }?>
                                    </tbody>
@@ -122,6 +127,20 @@ $count=0;
 
     <!-- Bootstrap core JavaScript-->
    <?php include("script.html") ?>
+
+   </script>
+     <?php if (isset($message)): ?>
+        <script>
+            Swal.fire({
+            title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+            text: '<?php echo isset($message) ? $message : ""; ?>',
+            icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+            timer: 2500, 
+            showConfirmButton: false
+        });
+        </script>
+
+    <?php endif; ?>
 
 </body>
 

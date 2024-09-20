@@ -72,7 +72,7 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
             <div id="content">
 
                 <!-- Topbar -->
-               <?php include('navbar.html') ?>
+               <?php include('navbar.php') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -80,8 +80,8 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
 
                     <!-- Page Heading -->
                     <ul  class="breadcrumb m-3">
-                        <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                        <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
+                        <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
+                        <li class="breadcrumb-item "><a href="Employee.php" class='text-success'>الموظفين</a> </li>
                         <li class="breadcrumb-item active">تفاصيل الموظف  </li> 
                     </ul>
                     <h3 class="text-center">بيانات الموظف الاساسية</h3>
@@ -139,10 +139,10 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
     <div class="col-md-6">
     <div class="d-flex justify-content-between align-items-center mb-1">
             <h3 class="text-center">بدلات الموظف</h3>
-            <button class="btn btn-primary btn-sm">إضافة بدل</button>
+            <button class="btn btn-outline-secondary btn-sm">إضافة بدل</button>
         </div>
         <div class="table-responsive">
-            <table class="table table-bordered" width="100%">
+            <table class="table table-bordered border-bottom-success" width="100%">
                 
                 <tbody>
                         <?php foreach($emp_allowance as $allowance) { ?>
@@ -151,19 +151,17 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
                             <th class="text-center"><?=$allowance['amount']?></th>
                         </tr>
                         <?php } ?>
-                    
                 </tbody>
             </table>
         </div>
     </div>
-
             <div class="col-md-6">
                 <div class="d-flex justify-content-between align-items-center mb-1">
             <h3 class="text-center">مرفقات الموظف</h3>
-            <button class="btn btn-primary btn-sm">إضافة مرفق</button>
+            <button class="btn btn-outline-secondary btn-sm">إضافة مرفق</button>
         </div>
         <div class="table-responsive">
-            <table class="table table-bordered" width="100%">
+            <table class="table table-bordered border-bottom-success" width="100%">
                 
                 <tbody>
                     

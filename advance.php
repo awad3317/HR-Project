@@ -42,14 +42,14 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
     <?php include('Sidebar.html') ?>
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
-            <?php include('navbar.html') ?>
+            <?php include('navbar.php') ?>
             <div class="container-fluid">
                 <ul class="breadcrumb m-3">
-                    <li class="breadcrumb-item"><a href="home.php">الرئيسية</a></li>
+                    <li class="breadcrumb-item"><a href="home.php" class='text-success'>الرئيسية</a></li>
                     <li class="breadcrumb-item active"> السلف </li>
                 </ul>
                
-                <h1>إضافة سلفة جديدة</h1>
+                <h1>طلب سلفه </h1>
                 <form action="" method="POST">
                     <div class="row">
                         <div class="col-md-6">
@@ -70,7 +70,7 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                             </div>
                         </div>
                     </div>
-                    <button type="submit" name="save" class="btn btn-primary">إضافة سلفة </button>
+                    <button type="submit" name="save" class="btn btn-outline-success">طلب سلفه </button>
                 </form>
 
                 <h2 class="mt-5">جدول السلف</h2>
