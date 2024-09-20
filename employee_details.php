@@ -14,86 +14,24 @@ session_start();
 $database = new Database();
 $db = $database->connect();
 
-if(isset($_GET['edit'])){
-    header("location: add_employee2.php");
+if(!isset($_GET['id'])){
+    header("location: Employee.php");
 }
-if(!isset($_SESSION['allowances'])){
-    header("location: add_employee2.php");
-}
-$allowances = $_SESSION['allowances'];
-$data_basic = $_SESSION['data_basic'];
-if(isset($_POST['save'])) {
-    $data=[
-        'type1'=>$_POST['type1'],
-        'type2'=>$_POST['type2'],
-        'type3'=>$_POST['type3'],
-    ];
-    $employee=new employee($db);
-    // decode image and save the file and save the path in table
-    $arr=explode(';base64,',$data_basic['image']);
-    $content=$arr[1];
-    $extension=explode('image/',$arr[0])[1];
-    $path='Upload/'.random_int(9909,999999).'.'.$extension;
-    file_put_contents($path,base64_decode($content));
-    $data_basic['image']=$path;
-    // 
-    $employee_id=$employee->Create($data_basic);
-    $allowances['employee_id']=$employee_id;
-    $allowance_employee=new allowance_employee($db);
-    if($allowances['type1']!='' and $allowances['type2']!=''){
-        $allowance_employee->CreateAll($allowances);
-    }
-    elseif($allowances['type1']!=''){
-        $allowance_employee->Create($allowances);
-    }
-    $data['employee_id']=$employee_id;
-    $employee_file=new employee_file($db);
-    if($data['type1']!='' and $data['type2']!='' and $data['type3']!=''){
-        $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
-        move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
-        $data['path1']=$path;
-        $path='Upload/'.random_int(999,99999).$_FILES['attachment2']['name'];
-        move_uploaded_file($_FILES['attachment2']['tmp_name'],$path);
-        $data['path2']=$path;
-        $path='Upload/'.random_int(999,99999).$_FILES['attachment3']['name'];
-        move_uploaded_file($_FILES['attachment3']['tmp_name'],$path);
-        $data['path3']=$path;
-        $employee_file->CreateAll($data);
-    }
-    elseif($data['type1']!='' and $data['type2']!=''){
-        $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
-        move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
-        $data['path1']=$path;
-        $path='Upload/'.random_int(999,99999).$_FILES['attachment2']['name'];
-        move_uploaded_file($_FILES['attachment2']['tmp_name'],$path);
-        $data['path2']=$path;
-        $employee_file->CreateAll($data);
-    }
-    elseif($data['type1']!=''){
-        $path='Upload/'.random_int(999,99999).$_FILES['attachment1']['name'];
-        move_uploaded_file($_FILES['attachment1']['tmp_name'],$path);
-        $data['path1']=$path;
-        $employee_file->Create($data);
-    }
-   header("location: Employee.php");
-}
-$department=new department($db);
-$departments=$department->find($data_basic['department']);
-$jops=new jop($db);
-$jop=$jops->find($data_basic['jop']);
-$allowance_type=new allowance($db);
-$file_type= new file($db);
-$file_types=$file_type->All();
-$type1=$allowances['type1'];
-$type2=$allowances['type2'];
-if($type1 !=''){
-    $type1=$allowance_type->find($allowances['type1']);
-}
-if($type2 !=''){
-    $type2=$allowance_type->find($allowances['type2']);
-}
+$emp_id=$_GET['id'];
 
+//Get the employee
+$employee= new employee($db);
+$emp = $employee->select("SELECT emp.*, dep.name AS dep_name, jop.name AS jop_name, sum(adv.amount) AS total
+                        FROM employees AS emp 
+                        JOIN departments AS dep ON emp.department_id = dep.id
+                        JOIN jops AS jop ON emp.jop_id = jop.id
+                        JOIN advances AS adv ON emp.id = adv.employee_id
+                        WHERE emp.id = $emp_id");
 
+$emp_allowance=$employee->select("SELECT allowance_employee.amount AS amount, allowances.name AS allowance_name FROM allowance_employee 
+                                JOIN allowances ON allowance_employee.allowance_id = allowances.id 
+                                WHERE allowance_employee.employee_id=$emp_id");
+$emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOIN file ON emp_file.file_id = file.id WHERE emp_file.employee_id = $emp_id ")
 ?>
 
 
@@ -116,11 +54,6 @@ if($type2 !=''){
    
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.css" rel="stylesheet">
-
-    <style>
-    .custom-row {margin: 0; }
-    .custom-col {padding: 0.2rem; }
-    </style>
 
 </head>
 <body id="page-top">
@@ -149,129 +82,108 @@ if($type2 !=''){
                     <ul  class="breadcrumb m-3">
                         <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
                         <li class="breadcrumb-item "><a href="Employee.php">الموظفين</a> </li>
-                        <li class="breadcrumb-item active">إضافة موظف جديد </li> 
+                        <li class="breadcrumb-item active">تفاصيل الموظف  </li> 
                     </ul>
                     <h3 class="text-center">بيانات الموظف الاساسية</h3>
                     <div class="row mb-4 justify-content-center">
+                        <?php foreach($emp as $e){ ?>
                         <div class="col-md-3 text-center">
-                            <img id="profileImage" src="<?=$data_basic['image']?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
+                            <img id="profileImage" src="<?=$e['imge']?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
                         </div>
                             <div class="col-md-8">
                             <div class="row">
                                 <div class="col-md-6 custom-col">  
-                                    <p><strong>الاسم:</strong> <?=$data_basic['name']?> </p>     
+                                    <p><strong>الاسم:</strong> <?=$e['name']?> </p>     
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>رقم الهوية:</strong> <?=$data_basic['divinity_no']?></p>
+                                    <p><strong>رقم الهوية:</strong> <?=$e['divinity_no']?></p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>تاريخ الميلاد:</strong> <?=$data_basic['birthdate']?> </p>
+                                    <p><strong>تاريخ الميلاد:</strong> <?=$e['birthday']?> </p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>رقم التواصل:</strong> <?=$data_basic['phone']?> </p>
+                                    <?php
+                                    $startDate = new DateTime($e['start_date']);
+                                    $today = new DateTime();
+                                    $interval = $startDate->diff($today);
+                                    $years = $interval->y;
+                                    $months = $interval->m;
+                                    $days = $interval->d;
+                                    ?>
+                                    <p><strong>فترة العمل:</strong> <?= $years ?> سنوات و <?= $months ?> اشهر و <?= $days ?> ايام</p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>العنوان:</strong> <?=$data_basic['address']?></p>
+                                    <p><strong>رقم التواصل:</strong> <?=$e['phone']?> </p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>الراتب الأساسي:</strong> <?=$data_basic['basic_salary']?> </p>
+                                    <p><strong>العنوان:</strong> <?=$e['address']?></p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>الجنس:</strong> <?php echo $data_basic['sex'] == true ? 'ذكر' : 'أنثى'; ?> </p>
+                                    <p><strong>الراتب الأساسي:</strong> <?=$e['basic_salary']?> </p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>القسم:</strong> <?php foreach($departments as $dep){echo $dep['name'];} ?> </p>
+                                    <p><strong>الجنس:</strong> <?php echo $e['sex'] == true ? 'ذكر' : 'أنثى'; ?> </p>
                                 </div>
                                 <div class="col-md-6 custom-col">
-                                    <p><strong>الوظيفة:</strong> <?php foreach($jop as $j){echo $j['name'];} ?> </p>
+                                    <p><strong>القسم:</strong> <?=$e['dep_name']?> </p>
+                                </div>
+                                <div class="col-md-6 custom-col">
+                                    <p><strong>الوظيفة:</strong> <?=$e['jop_name']?> </p>
                                 </div>
                             </div>
                         </div>
+                        <?php }?>
                     </div>
-                    <h3 class="text-center">بدلات الموظف:  </h3>
+                    
                     <div class="row mb-4 justify-content-center">
-                        <div class="col-md-3 text-center">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-md-6 custom-col">
-                                    <p><strong><?php if($type1!=''){ foreach($type1 as $type){echo $type['name'];}}?> :</strong> <?= $allowances['allowance1'] ??'' ?> </p>
-                                </div>
-                                <div class="col-md-6 custom-col">
-                                    <p><strong> <?php if($type2!=''){ foreach($type2 as $type){echo $type['name'];}} ?> :</strong> <?= $allowances['allowance2']??'' ?> </p>
-                                </div>
-                                <div class="col-md-6 custom-col mx-auto">
-                                    <p><strong>تعديل البيانات:</strong> <a href="add_employee3.php?edit=".true >تعديل</a> </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <h3 class="text-center"> إضافة مرفقات للموظف</h3>
-                    <form action="add_employee3.php" method="POST" enctype="multipart/form-data">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="type1">النوع:</label>
-                                <select class="form-control" id="type1" name="type1">
-                                    <option value="">اختر نوع المرفق</option>
-                                    <?php foreach($file_types as $type){  ?>
-                                    <option value="<?=$type['id']?>"> <?=$type['type']?></option>
-                                    <?php }?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="image"> المرفق : </label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="attachment1" name="attachment1">
-                                        <label class="custom-file-label" for="image">رفع الملف </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="type1">النوع:</label>
-                                <select class="form-control" id="type2" name="type2">
-                                    <option value="">اختر نوع المرفق</option>
-                                    <?php foreach($file_types as $type){  ?>
-                                    <option value="<?=$type['id']?>"> <?=$type['type']?></option>
-                                    <?php }?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="image"> المرفق : </label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="attachment2" name="attachment2" >
-                                        <label class="custom-file-label" for="image">رفع الملف </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="type1">النوع:</label>
-                                <select class="form-control" id="type3" name="type3">
-                                    <option value="">اختر نوع المرفق</option>
-                                    <?php foreach($file_types as $type){  ?>
-                                    <option value="<?=$type['id']?>"> <?=$type['type']?></option>
-                                    <?php }?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="image"> المرفق : </label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="attachment3" name="attachment3">
-                                        <label class="custom-file-label" for="image">رفع الملف </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" name="save" class="btn btn-primary">رفع جميع المرفقات</button>
-                    </form>
+    <div class="col-md-6">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+            <h3 class="text-center">بدلات الموظف</h3>
+            <button class="btn btn-primary btn-sm">إضافة بدل</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%">
+                
+                <tbody>
+                        <?php foreach($emp_allowance as $allowance) { ?>
+                        <tr>
+                            <th class="text-center bg-gray-200"><?=$allowance['allowance_name']?></th>
+                            <th class="text-center"><?=$allowance['amount']?></th>
+                        </tr>
+                        <?php } ?>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+            <div class="col-md-6">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+            <h3 class="text-center">مرفقات الموظف</h3>
+            <button class="btn btn-primary btn-sm">إضافة مرفق</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%">
+                
+                <tbody>
+                    
+                    <?php foreach($emp_file as $file) { ?>
+                        <tr>
+                            <th class="text-center bg-gray-200"><?=$file['type']?></th>
+                            <th class="text-center">
+                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary" download="مرفق">تحميل</a>
+                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success">فتح</a>
+                            </th> 
+                        </tr>
+                    <?php } ?>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+                    
+                    
                 </div>
                 <!-- /.container-fluid -->
 
@@ -296,6 +208,7 @@ if($type2 !=''){
 
     <!-- Bootstrap core JavaScript-->
    <?php include("script.html") ?>
+
    
 </body>
 </html>
