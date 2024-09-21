@@ -6,6 +6,7 @@ include('DB/advance.php');
 include('DB/file.php');
 include('DB/jop.php');
 include('DB/leave.php');
+include('DB/leave_type.php');
 include('DB/department.php');
 include('DB/employee_file.php');
 include('DB/allowance_employee.php');
@@ -15,8 +16,8 @@ session_start();
 
 $database = new Database();
 $db = $database->connect();
-
-if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok']) and !isset($_POST['save_file'])){
+$leave= new leave($db);
+if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok']) and !isset($_POST['save_file']) and !isset($_POST['save_leave'])){
     header("location: Employee.php");
 }
 if(isset($_POST['ok'])){
@@ -28,6 +29,16 @@ if(isset($_POST['ok'])){
     $advance= new advance($db);
     $advance->Create($data);
     $emp_id=$_POST['emp_id'];
+}
+
+if(isset($_POST['save_leave'])){
+    $data=[
+        'leave_type_id'=>$_POST['type'],
+        'employee_id'=>$_POST['emp_id'],
+        'end'=>$_POST['end'],
+        'start'=>$_POST['start']
+    ];
+    $leave->Create($data);
 }
 
 if(isset($_POST['save_file'])){
@@ -73,7 +84,9 @@ $allowance= new allowance($db);
 $allowances=$allowance->All();
 $file_type= new file($db);
 $file_types=$file_type->All();
-$leave=new leave($db);
+$leave_type= new leave_type($db);
+$types=$leave_type->All();
+$employees= $employee->All();
 $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_type_id = leave_type.id WHERE leaves.employee_id= $emp_id")
 ?>
 
@@ -127,6 +140,7 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                         <li class="breadcrumb-item "><a href="Employee.php" class='text-success'>الموظفين</a> </li>
                         <li class="breadcrumb-item active">تفاصيل الموظف  </li> 
                     </ul>
+                    <hr>
                     <h3 class="text-center">بيانات الموظف الاساسية</h3>
                     <div class="row mb-4 justify-content-center">
                         <?php foreach($emp as $e){ ?>
@@ -177,24 +191,28 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                         </div>
                         <?php }?>
                     </div>
-                    
+                    <hr>
                     <div class="row mb-4 justify-content-center">
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="text-center">بدلات الموظف</h3>
                                 <button class="btn btn-outline-secondary btn-sm" id="add-allowance-btn">إضافة بدل</button>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered border-bottom-success" width="100%">
-                                    <tbody>
-                                        <?php foreach($emp_allowance as $allowance) { ?>
-                                        <tr>
-                                            <th class="text-center bg-gray-200"><?=$allowance['allowance_name']?></th>
-                                            <th class="text-center"><?=$allowance['amount']?></th>
-                                        </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 200px; min-height: 200px; overflow-y: auto;">
+                                        <table class="table table-bordered border-bottom-success" width="100%">
+                                            <tbody>
+                                                <?php foreach($emp_allowance as $allowance) { ?>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200"><?=$allowance['allowance_name']?></th>
+                                                    <th class="text-center"><?=$allowance['amount']?></th>
+                                                </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -202,73 +220,98 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                 <h3 class="text-center">مرفقات الموظف</h3>
                                 <button class="btn btn-outline-secondary btn-sm" id="add-file-btn">إضافة مرفق</button>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered border-bottom-success" width="100%">
-                                    <tbody>
-                                        <?php foreach($emp_file as $file) { ?>
-                                        <tr>
-                                            <th class="text-center bg-gray-200"><?=$file['type']?></th>
-                                            <th class="text-center">
-                                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
-                                                <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
-                                            </th> 
-                                        </tr>
-                                        <?php } ?>
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 200px; min-height: 200px; overflow-y: auto;">
+                                        <table class="table table-bordered border-bottom-success" width="100%">
+                                            <tbody>
+                                                <?php foreach($emp_file as $file) { ?>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200"><?=$file['type']?></th>
+                                                    <th class="text-center">
+                                                        <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
+                                                        <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
+                                                    </th> 
+                                                </tr>
+                                                <?php } ?>
                     
-                                    </tbody>
-                                </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <hr>
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="text-center">سلفات الموظف</h3>
                                 <button class="btn btn-outline-secondary btn-sm" id="add-advance-btn">طلب سلفه جديده</button>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered border-bottom-success" width="100%">
-                                    <tbody>
-                                        <?php $total=0; foreach($emp_advance as $advance) { ?>
-                                        <tr>
-                                            <th class="text-center bg-gray-200"><?=$advance['date']?></th>
-                                            <th class="text-center"><?=$advance['amount']?></th> 
-                                        </tr>
-                                        <?php $total+=$advance['amount']; } ?>
-                                        <tr>
-                                            <th class="text-center bg-gray-200">الاجمالي</th>
-                                            <th class="text-center"><?=$total?></th> 
-                                        </tr>
-                                    </tbody>
-                                    
-                                </table>
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 200px;min-height: 200px; overflow-y: auto;">
+                                        <table class="table table-bordered border-bottom-success" width="100%">
+                                            <tbody>
+                                                <?php $total=0; foreach($emp_advance as $advance) { ?>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200"><?=$advance['date']?></th>
+                                                    <th class="text-center"><?=$advance['amount']?></th> 
+                                                </tr>
+                                                <?php $total+=$advance['amount']; } ?>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200">الاجمالي</th>
+                                                    <th class="text-center"><?=$total?></th> 
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="text-center">إجازات الموظف</h3>
-                                <button class="btn btn-outline-secondary btn-sm">طلب إجازة جديده</button>
+                                <button id="add-leave-btn" class="btn btn-outline-secondary btn-sm">طلب إجازة جديده</button>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered border-bottom-success" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>السبب</th>
-                                            <th>البدء</th>
-                                            <th>النهاية</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $total=0; foreach($leaves as $leave) { ?>
-                                        <tr>
-                                            <th class="text-center bg-gray-200"><?=$leave['type']?></th>
-                                            <th class="text-center"><?=$leave['start']?></th> 
-                                            <th class="text-center"><?=$leave['end']?></th> 
-                                        </tr>
-                                        <?php } ?>
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 200px; min-height: 200px; overflow-y: auto;">
+                                        <table class="table table-bordered border-bottom-success" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200">السبب</th>
+                                                    <th class="text-center bg-gray-200">البدء</th>
+                                                    <th class="text-center bg-gray-200">النهاية</th>
+                                                    <th class="text-center bg-gray-200">حالتها</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $total=0; foreach($leaves as $leave) { ?>
+                                                <tr>
+                                                    <th class="text-center"><?=htmlspecialchars($leave['type'])?></th>
+                                                    <th class="text-center"><?=htmlspecialchars($leave['start'])?></th>
+                                                    <th class="text-center"><?=htmlspecialchars($leave['end'])?></th> 
+                                                    <th class="text-center">
+                                                        <?php
+                                                            $endDate = new DateTime($leave['end']);
+                                                            $currentDate = new DateTime();
+                                                            if ($endDate < $currentDate) {
+                                                                echo '<span class="text-gray-900">منتهية</span>';
+                                                            } else {
+                                                                echo  '<span class="text-gray-900">جارية</span>';;
+                                                            } 
+                                                        ?>
+                                                    </th> 
+                                                </tr>
+                                                <?php } ?>
                     
-                                    </tbody>
-                                </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <hr>
                     </div>  
                 </div>
                 <!-- /.container-fluid -->
@@ -371,7 +414,7 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
 <script>
        document.getElementById('add-advance-btn').addEventListener('click', async () => {
     const { value: amount_value } = await Swal.fire({
-        title: ' طلب سلفه جديد',
+        title: ' طلب سلفه جديده',
         html: `
            <div class="d-flex justify-content-between align-items-center">
                 <h5 class="m-0">مقدار السلفه  </h5>
@@ -401,37 +444,40 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
     });
 
     if (amount_value) {
-       
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = window.location.href; 
+        const formData = new FormData(); 
 
-        const advance_amount = document.createElement('input');
-        advance_amount.type = 'hidden';
-        advance_amount.name = 'amount';
-        advance_amount.value = amount_value;
-        form.appendChild(advance_amount);
+        formData.append('amount', amount_value); 
+        formData.append('emp_id', <?=$emp_id?>);
+        formData.append('ok', 'true');
 
-        const empIdInput = document.createElement('input');
-        empIdInput.type = 'hidden';
-        empIdInput.name = 'emp_id';
-        empIdInput.value = <?=$emp_id?>;
-        form.appendChild(empIdInput);
-
-        const inputSave = document.createElement('input');
-        inputSave.type = 'hidden';
-        inputSave.name = 'ok';
-        inputSave.value = 'true';
-        form.appendChild(inputSave);
-
-        document.body.appendChild(form);
-        form.submit();
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            return true;
+        })
+        .then(data => {
+           
+            Swal.fire({
+            title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+            text: 'تمت طلب السلفه بنجاح',
+            icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+            timer: 2500, 
+            showConfirmButton: false
+        });
+            setTimeout(() => {
+                location.reload(); // إعادة تحميل الصفحة بعد 3 ثواني
+            }, 2000); // 3000 مللي ثانية (3 ثواني)
+        })
+        
     }
-});
+    }
+);
     </script>
 <script>
-       document.getElementById('add-file-btn').addEventListener('click', async () => {
-        const typesOptions = `
+document.getElementById('add-file-btn').addEventListener('click', async () => {
+    const typesOptions = `
         <?php foreach ($file_types as $type) { ?>
             <option value="<?= $type['id'] ?>"><?= $type['type'] ?></option>
         <?php } ?>
@@ -448,11 +494,11 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
         focusConfirm: false,
         preConfirm: () => {
             const type = document.getElementById("type-select").value;
-            const file = document.getElementById("file").value;
+            const file = document.getElementById("file").files[0]; // استخدام files[0] للحصول على الكائن
             if (!type || !file) {
                 Swal.showValidationMessage('يرجى إدخال جميع الحقول ');
                 return false;
-        }
+            }
             return [type, file];
         },
         confirmButtonText: 'إضافة', 
@@ -461,45 +507,121 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
             confirmButton: 'btn btn-success',
             cancelButton:  'btn btn-secondary',
             title: ' text-success'
-            
         },
         showCancelButton: true,
     });
 
     if (formValues) {
         const [type, file] = formValues;
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = window.location.href; 
+        const formData = new FormData(); 
 
-        const type_file = document.createElement('input');
-        type_file.type = 'hidden';
-        type_file.name = 'type';
-        type_file.value = type;
-        form.appendChild(type_file);
+        formData.append('type', type);
+        formData.append('file', file); 
+        formData.append('emp_id', <?=$emp_id?>);
+        formData.append('save_file', 'true');
 
-        const file_path = document.createElement('input');
-        file_path.type = 'hidden';
-        file_path.name = 'file';
-        file_path.value = file;
-        form.appendChild(file_path);
-
-        const emp_id = document.createElement('input');
-        emp_id.type = 'hidden';
-        emp_id.name = 'emp_id';
-        emp_id.value = <?=$emp_id?>;
-        form.appendChild(emp_id);
-
-        const inputSave = document.createElement('input');
-        inputSave.type = 'hidden';
-        inputSave.name = 'save_file';
-        inputSave.value = 'true';
-        form.appendChild(inputSave);
-
-        document.body.appendChild(form);
-        form.submit();
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            return true;
+        })
+        .then(data => {
+           
+            Swal.fire({
+            title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+            text: 'تمت إضافة المرفق بنجاح',
+            icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+            timer: 2500, 
+            showConfirmButton: false
+        });
+            setTimeout(() => {
+                location.reload(); // إعادة تحميل الصفحة بعد 3 ثواني
+            }, 2000); // 3000 مللي ثانية (3 ثواني)
+        })
+        
     }
 });
+</script>
+<script>
+        document.getElementById('add-leave-btn').addEventListener('click', async () => {
+            const typesOptions = `
+        <?php foreach ($types as $type) { ?>
+            <option value="<?= $type['id'] ?>"><?= $type['type'] ?></option>
+        <?php } ?>
+    `;
+            const { value: formValues } = await Swal.fire({
+                title: 'إضافة إجازة',
+        html: `
+            <label > سبب الإجازه  : </label>
+            <select id="type-select" class="form-control mb-2">
+                <option value="">اختر سبب الإجازة</option>
+                ${typesOptions}
+            </select>
+            <div class="form-group">
+                <label > تاريخ بدء الاجازة: </label>
+                <input id="start" type="date" class="form-control mb-2" placeholder="">
+            </div>
+            <div class="form-group">
+                <label > تاريخ نهاية الاجازة: </label>
+                <input id="end" type="date" class="form-control mb-2" placeholder="">
+            </div>
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+            const type = document.getElementById("type-select").value;
+            const start = document.getElementById("start").value;
+            const end = document.getElementById("end").value;
+            if (!type || !start || !end) {
+                Swal.showValidationMessage('يرجى إدخال جميع الحقول ');
+                return false;
+        }
+            return [type, start, end];
+        },
+                confirmButtonText: 'إضافة',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton:  'btn btn-secondary',
+                    title: ' text-success'
+                },
+                showCancelButton: true,
+            });
+
+            if (formValues) {
+                const [type, start, end] = formValues;
+                const formData = new FormData(); 
+
+                formData.append('type', type);
+                formData.append('start', start); 
+                formData.append('end', end);
+                formData.append('emp_id', <?=$emp_id?>);
+                formData.append('save_leave', 'true');
+
+                fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            return true;
+        })
+        .then(data => {
+           
+            Swal.fire({
+            title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+            text: 'تمت طلب الإجازة بنجاح',
+            icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+            timer: 2500, 
+            showConfirmButton: false
+        });
+            setTimeout(() => {
+                location.reload(); 
+            }, 2000); 
+        })
+        
+            }
+        });
     </script>
 </body>
 </html>

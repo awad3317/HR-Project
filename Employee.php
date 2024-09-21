@@ -91,10 +91,10 @@ $count=0;
                                     ?>
                                     <tr>
                                         <td><?=$count?></td>
-                                        <td><?=$employee['employee']?></td>
-                                        <td><?=$employee['phone']?></td>
-                                        <td><?=$employee['department']?></td>
-                                        <td><?=$employee['basic_salary']?></td>
+                                        <td><?=htmlspecialchars($employee['employee'])?></td>
+                                        <td><?=htmlspecialchars($employee['phone'])?></td>
+                                        <td><?=htmlspecialchars($employee['department'])?></td>
+                                        <td><?=htmlspecialchars($employee['basic_salary'])?></td>
                                         <td><a href="employee_details.php?id=<?=$employee['id']?>"><button class="btn btn-outline-secondary">التفاصيل</button></a></td>
                                     </tr>
                                     <?php }?>

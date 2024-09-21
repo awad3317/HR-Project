@@ -94,7 +94,7 @@ $count=0;
                                         $count++ ?>
                                         <tr>
                                             <td><?=$count?></td>
-                                            <td><?=$jop['name']?></td>
+                                            <td><?=htmlspecialchars($jop['name'])?></td>
                                             <td>
                                                 <button class="btn btn-outline-danger delete-button" data-id="<?= $jop['id'] ?>">حذف</button>
                                             </td>

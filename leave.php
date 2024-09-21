@@ -122,10 +122,19 @@ $employees= $employee->All();
                                 <?php $count=0; foreach($leaves as $leave){ $count++?>
                                     <tr>
                                         <td><?=$count?></td>
-                                        <td><?=$leave['name']?></td>
-                                        <td><?=$leave['type']?></td>
-                                        <td><?=$leave['start']?></td>
-                                        <td><?=$leave['end']?></td>
+                                        <td><?=htmlspecialchars($leave['name'])?></td>
+                                        <td><?=htmlspecialchars($leave['type'])?></td>
+                                        <td><?=htmlspecialchars($leave['start'])?></td>
+                                        <td><?php
+                                        $endDate = new DateTime($leave['end']);
+                                        $currentDate = new DateTime();
+                                        if ($endDate < $currentDate) {
+                                            echo '<span class="text-gray-900">منتهية</span>';
+                                        } else {
+                                            echo  htmlspecialchars($leave['end']);
+                                        } 
+                                        ?>
+                                        </td>
                                     </tr>
                                 <?php }?>
                             </tbody>
