@@ -15,7 +15,6 @@ if (isset($_POST['save'])) {
         'amount'=>$_POST['amount'],
         'date'=>date_format(date_create(),'Y-m-d'),
         'employee_id'=>$_POST['employee_id'],
-
     ];
     $advance_id=$advance->Create($data);
 }
@@ -48,41 +47,17 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                     <li class="breadcrumb-item"><a href="home.php" class='text-success'>الرئيسية</a></li>
                     <li class="breadcrumb-item active"> السلف </li>
                 </ul>
-               
-                <h1>طلب سلفه </h1>
-                <form action="" method="POST">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="amount">قيمة السلفة: <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="amount" name="amount" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="employee_id"> الموظف: <span class="text-danger">*</span></label>
-                                <select class="form-control" id="employee_id" name="employee_id" required>
-                                    <option value="">اختر الموظف</option>
-                                    <?php foreach ($employees as $employee){ ?>
-                                        <option value="<?= htmlspecialchars($employee['id']) ?>"><?= htmlspecialchars($employee['name']) ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" name="save" class="btn btn-outline-success">طلب سلفه </button>
-                </form>
-
-                <h2 class="mt-5">جدول السلف</h2>
+                <button type="submit" id="add-advance-btn" name="save" class="btn btn-outline-success">طلب سلفه </button>
+                <h2 class="mt-5"> السلف</h2>
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th>الموظف</th>
-                        <th>الاجمالي</th>
-                        <th>رقم التواصل</th>
-                        <th>القسم </th>
-                        <th>التفاصيل</th>
+                        <th class="bg-gradient-success text-gray-100">#</th>
+                        <th class="bg-gradient-success text-gray-100">الموظف</th>
+                        <th class="bg-gradient-success text-gray-100">الاجمالي</th>
+                        <th class="bg-gradient-success text-gray-100">رقم التواصل</th>
+                        <th class="bg-gradient-success text-gray-100">القسم </th>
+                        <th class="bg-gradient-success text-gray-100">التفاصيل</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -112,6 +87,77 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
 
 <!-- Bootstrap core JavaScript-->
 <?php include("script.html") ?>
+<script>
+        document.getElementById('add-advance-btn').addEventListener('click', async () => {
+    const empOptions = `
+        <?php foreach ($employees as $emp) { ?>
+            <option value="<?= $emp['id'] ?>"><?= $emp['name'] ?></option>
+        <?php } ?>
+    `;
+            const { value: formValues } = await Swal.fire({
+                title: 'طلب سلفه ',
+        html: `
+            <label >  الموظف  : </label>
+            <select id="emp-select" class="form-control mb-2">
+                <option value="">اختر  الموظف</option>
+                ${empOptions}
+            </select>
+            <div class="form-group">
+                <label > مقدار السلفه  : </label>
+                <input id="start" type="number" class="form-control mb-2" placeholder="">
+            </div>
+           
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+            const advance = document.getElementById("advance").value;
+            const emp = document.getElementById("emp-select").value;
+            if (!advance || !emp) {
+                Swal.showValidationMessage('يرجى إدخال جميع الحقول ');
+                return false;
+        }
+            return [type, emp, start, end];
+        },
+                confirmButtonText: 'إضافة',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton:  'btn btn-secondary',
+                    title: ' text-success'
+                },
+                showCancelButton: true,
+            });
+
+            if (formValues) {
+                const [type, emp, start, end] = formValues;
+              
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = window.location.href;
+
+                const inputadvance = document.createElement('input');
+                inputadvance.type = 'hidden';
+                inputadvance.name = 'advance';
+                inputadvance.value = advance;
+                form.appendChild(inputadvance);
+
+                const inputemp = document.createElement('input');
+                inputemp.type = 'hidden';
+                inputemp.name = 'emp';
+                inputemp.value = emp;
+                form.appendChild(inputemp);
+
+                const inputSave = document.createElement('input');
+                inputSave.type = 'hidden';
+                inputSave.name = 'save';
+                inputSave.value = 'true';
+                form.appendChild(inputSave);
+
+                document.body.appendChild(form);
+                form.submit(); 
+            }
+        });
+    </script>
 
 </body>
 </html>

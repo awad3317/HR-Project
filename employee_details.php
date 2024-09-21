@@ -5,6 +5,7 @@ include('DB/allowance.php');
 include('DB/advance.php');
 include('DB/file.php');
 include('DB/jop.php');
+include('DB/leave.php');
 include('DB/department.php');
 include('DB/employee_file.php');
 include('DB/allowance_employee.php');
@@ -15,7 +16,7 @@ session_start();
 $database = new Database();
 $db = $database->connect();
 
-if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok'])){
+if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok']) and !isset($_POST['save_file'])){
     header("location: Employee.php");
 }
 if(isset($_POST['ok'])){
@@ -27,6 +28,18 @@ if(isset($_POST['ok'])){
     $advance= new advance($db);
     $advance->Create($data);
     $emp_id=$_POST['emp_id'];
+}
+
+if(isset($_POST['save_file'])){
+    $path='Upload/'.random_int(999,99999).$_FILES['file']['name'];
+    move_uploaded_file($_FILES['file']['tmp_name'],$path);
+    $data=[
+        'type1'=>$_POST['type'],
+        'path1'=>$path,
+        'employee_id'=>$_POST['emp_id']
+    ];
+    $employee_file= new employee_file($db);
+    $employee_file->Create($data);
 }
 
 if(isset($_POST['save'])){
@@ -58,6 +71,10 @@ $emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOI
 $emp_advance=$employee->select("SELECT * FROM advances WHERE employee_id = $emp_id");
 $allowance= new allowance($db);
 $allowances=$allowance->All();
+$file_type= new file($db);
+$file_types=$file_type->All();
+$leave=new leave($db);
+$leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_type_id = leave_type.id WHERE leaves.employee_id= $emp_id")
 ?>
 
 
@@ -183,7 +200,7 @@ $allowances=$allowance->All();
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="text-center">مرفقات الموظف</h3>
-                                <button class="btn btn-outline-secondary btn-sm">إضافة مرفق</button>
+                                <button class="btn btn-outline-secondary btn-sm" id="add-file-btn">إضافة مرفق</button>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered border-bottom-success" width="100%">
@@ -228,15 +245,23 @@ $allowances=$allowance->All();
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="text-center">إجازات الموظف</h3>
-                                <button class="btn btn-outline-secondary btn-sm">طلب إاجازة جديده</button>
+                                <button class="btn btn-outline-secondary btn-sm">طلب إجازة جديده</button>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered border-bottom-success" width="100%">
-                                    <tbody>
-                                        <?php $total=0; foreach($emp_advance as $advance) { ?>
+                                    <thead>
                                         <tr>
-                                            <th class="text-center bg-gray-200"><?=$advance['date']?></th>
-                                            <th class="text-center"><?=$advance['amount']?></th> 
+                                            <th>السبب</th>
+                                            <th>البدء</th>
+                                            <th>النهاية</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $total=0; foreach($leaves as $leave) { ?>
+                                        <tr>
+                                            <th class="text-center bg-gray-200"><?=$leave['type']?></th>
+                                            <th class="text-center"><?=$leave['start']?></th> 
+                                            <th class="text-center"><?=$leave['end']?></th> 
                                         </tr>
                                         <?php } ?>
                     
@@ -301,7 +326,8 @@ $allowances=$allowance->All();
         cancelButtonText: 'إلغاء',
         customClass: {
             confirmButton: 'btn btn-success',
-            cancelButton: 'btn btn-secondary'
+            cancelButton: 'btn btn-secondary',
+            title: ' text-success'
         },
         showCancelButton: true,
     });
@@ -365,7 +391,9 @@ $allowances=$allowance->All();
         cancelButtonText: 'إلغاء',
         customClass: {
             confirmButton: 'btn btn-success',
-            cancelButton:  'btn btn-secondary'
+            cancelButton:  'btn btn-secondary',
+            title: ' text-success'
+            
         },
         showCancelButton: true,
         
@@ -401,6 +429,77 @@ $allowances=$allowance->All();
     }
 });
     </script>
-   
+<script>
+       document.getElementById('add-file-btn').addEventListener('click', async () => {
+        const typesOptions = `
+        <?php foreach ($file_types as $type) { ?>
+            <option value="<?= $type['id'] ?>"><?= $type['type'] ?></option>
+        <?php } ?>
+    `;
+    const { value: formValues } = await Swal.fire({
+        title: 'إضافة مرفق',
+        html: `
+            <select id="type-select" class="form-control mb-2">
+                <option value="">اختر نوع المرفق</option>
+                ${typesOptions}
+            </select>
+            <input id="file" type="file" class="form-control" placeholder="">
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+            const type = document.getElementById("type-select").value;
+            const file = document.getElementById("file").value;
+            if (!type || !file) {
+                Swal.showValidationMessage('يرجى إدخال جميع الحقول ');
+                return false;
+        }
+            return [type, file];
+        },
+        confirmButtonText: 'إضافة', 
+        cancelButtonText: 'إلغاء',
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton:  'btn btn-secondary',
+            title: ' text-success'
+            
+        },
+        showCancelButton: true,
+    });
+
+    if (formValues) {
+        const [type, file] = formValues;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href; 
+
+        const type_file = document.createElement('input');
+        type_file.type = 'hidden';
+        type_file.name = 'type';
+        type_file.value = type;
+        form.appendChild(type_file);
+
+        const file_path = document.createElement('input');
+        file_path.type = 'hidden';
+        file_path.name = 'file';
+        file_path.value = file;
+        form.appendChild(file_path);
+
+        const emp_id = document.createElement('input');
+        emp_id.type = 'hidden';
+        emp_id.name = 'emp_id';
+        emp_id.value = <?=$emp_id?>;
+        form.appendChild(emp_id);
+
+        const inputSave = document.createElement('input');
+        inputSave.type = 'hidden';
+        inputSave.name = 'save_file';
+        inputSave.value = 'true';
+        form.appendChild(inputSave);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+    </script>
 </body>
 </html>

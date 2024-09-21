@@ -23,6 +23,7 @@ class employee{
         $result=$this->connection->query($query);
         return $result; 
     }
+    
     public function Count(){
         $query = "SELECT COUNT(*) AS 'count' FROM " . $this->table;
         $result=$this->connection->query($query);

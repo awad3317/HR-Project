@@ -10680,7 +10680,8 @@ a:focus {
 }
 
 .sidebar-dark .sidebar-brand {
-  color: #fff;
+  background-color: #fff;
+  color:#198754 ;
 }
 
 .sidebar-dark hr.sidebar-divider {

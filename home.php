@@ -66,11 +66,15 @@ $departments=$department->Count();
                             <li class="breadcrumb-item active">الرئيسية </li> 
                         </ul>
                         <div class="d-flex">
+                        <a href="add_employee.php" class="d-none d-sm-inline-block btn btn-sm btn-outline-success shadow-sm me-2">
+                                <i class="fas fa-sm text-white-50"></i> إضافة موظف
+                            </a>
                             <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm me-2">
                                 <i class="fas fa-download fa-sm text-white-50"></i> توليد تقرير
                             </a>
-                            <a href="add_employee.php" class="d-none d-sm-inline-block btn btn-sm btn-outline-success shadow-sm">
-                                <i class="fas fa-sm text-white-50"></i> إضافة موظف
+                            
+                            <a href="add_resignation.php" class="d-none d-sm-inline-block btn btn-sm btn-outline-secondary shadow-sm">
+                                <i class="fas fa-sm text-white-50"></i> طلب استقالة
                             </a>
                         </div>
                     </div>

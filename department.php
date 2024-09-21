@@ -74,7 +74,7 @@ $count=0;
                         <li class="breadcrumb-item active">الاقسام  </li> 
                     </ul>  
                     <button id="add-department-btn" class="btn btn-outline-success">إضافة قسم</button>
-                    <h1 class="h3 mb-2 mt-5 text-gray-800">الاقسام</h1>
+                    <h1 class="h3 mb-2 mt-3 text-gray-800">الاقسام</h1>
                     
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -83,10 +83,10 @@ $count=0;
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>القسم</th>
-                                        <th>تفاصيل</th>
-                                        <th>حذف</th>
+                                        <th class="bg-gradient-success text-gray-100">#</th>
+                                        <th class="bg-gradient-success text-gray-100">القسم</th>
+                                        <th class="bg-gradient-success text-gray-100">تفاصيل</th>
+                                        <th class="bg-gradient-success text-gray-100">حذف</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -152,7 +152,8 @@ $count=0;
                 cancelButtonText: 'إلغاء',
                 customClass: {
                     confirmButton: 'btn btn-success',
-                    cancelButton:  'btn btn-secondary'
+                    cancelButton:  'btn btn-secondary',
+                    title: ' text-success'
                 },
                 showCancelButton: true,
             });
