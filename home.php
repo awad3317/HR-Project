@@ -2,6 +2,7 @@
 include('DB/database.php');
 include('DB/employee.php');
 include('DB/department.php');
+include('DB/advance.php');
 session_start();
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
@@ -9,8 +10,12 @@ $database = new Database();
 $db = $database->connect();
 $employee = new employee($db);
 $employees=$employee->Count();
+$emp_salary_total=$employee->select("SELECT sum(basic_salary) AS total FROM employees");
 $department= new department($db);
 $departments=$department->Count();
+$advance=new advance($db);
+$advance_total=$advance->select("SELECT sum(amount) AS total FROM advances");
+
 
 ?>
 
@@ -81,7 +86,6 @@ $departments=$department->Count();
 
                     <!-- Content Row -->
                     <div class="row">
-
                         <!-- Earnings (Monthly) Card Example -->
                         <div class="col-xl-3 col-md-6 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
@@ -129,7 +133,7 @@ $departments=$department->Count();
                                             </div>
                                             <div class="row no-gutters align-items-center">
                                                 <div class="col-auto">
-                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">80000</div>
+                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"><?php foreach($advance_total as $total){echo $total['total']??'0';} ?></div>
                                                 </div>
                                                 <div class="col">
                                                    
@@ -152,7 +156,7 @@ $departments=$department->Count();
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                 <h4>اجمالي الرواتب</h4></div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">80000</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php foreach($emp_salary_total as $total){echo $total['total']??'0';} ?></div>
                                         </div>
                                         <div class="col-auto">
                                             

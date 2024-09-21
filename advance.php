@@ -12,11 +12,13 @@ $employee=new employee($db);
 $employees=$employee->All();
 if (isset($_POST['save'])) {
     $data=[
-        'amount'=>$_POST['amount'],
+        'amount'=>$_POST['advance'],
         'date'=>date_format(date_create(),'Y-m-d'),
-        'employee_id'=>$_POST['employee_id'],
+        'employee_id'=>$_POST['emp'],
     ];
     $advance_id=$advance->Create($data);
+    $message='تم طلب السلفه بنجاح ';
+    
 }
 
 $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'dep_name',employees.id AS 'emp_id', employees.name AS 'emp_name', employees.phone AS 'emp_phone' FROM advances JOIN employees ON advances.employee_id= employees.id JOIN departments ON employees.department_id = departments.id group by advances.employee_id");
@@ -48,7 +50,11 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                     <li class="breadcrumb-item active"> السلف </li>
                 </ul>
                 <button type="submit" id="add-advance-btn" name="save" class="btn btn-outline-success">طلب سلفه </button>
-                <h2 class="mt-5"> السلف</h2>
+                <h2 class="mt-3"> السلف</h2>
+                <div class="card shadow mb-4">
+                       
+                <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                     <tr>
@@ -73,6 +79,9 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+            </div>
+</div>
             </div>
             <?php include("footer.html") ?>
         </div>
@@ -104,7 +113,7 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
             </select>
             <div class="form-group">
                 <label > مقدار السلفه  : </label>
-                <input id="start" type="number" class="form-control mb-2" placeholder="">
+                <input id="advance" type="number" class="form-control mb-2" placeholder="">
             </div>
            
         `,
@@ -116,7 +125,7 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                 Swal.showValidationMessage('يرجى إدخال جميع الحقول ');
                 return false;
         }
-            return [type, emp, start, end];
+            return [advance, emp];
         },
                 confirmButtonText: 'إضافة',
                 cancelButtonText: 'إلغاء',
@@ -129,7 +138,7 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
             });
 
             if (formValues) {
-                const [type, emp, start, end] = formValues;
+                const [advance, emp] = formValues;
               
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -158,6 +167,20 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
             }
         });
     </script>
+
+</script>
+     <?php if (isset($message)): ?>
+        <script>
+            Swal.fire({
+            title: '<?php echo isset($validationErrors) ? "فشل الإضافة!" : "تم الإضافة!"; ?>',
+            text: '<?php echo isset($message) ? $message : ""; ?>',
+            icon: '<?php echo isset($validationErrors) ? "error" : "success"; ?>',
+            timer: 2500, 
+            showConfirmButton: false
+        });
+        </script>
+
+    <?php endif; ?>
 
 </body>
 </html>

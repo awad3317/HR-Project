@@ -6,6 +6,7 @@ include('DB/employee.php');
 
 $database = new Database();
 $db = $database->connect();
+$leave= new leave($db);
 if(isset($_POST['save'])){
     $data=[
         'leave_type_id'=>$_POST['type'],
@@ -13,16 +14,21 @@ if(isset($_POST['save'])){
         'end'=>$_POST['end'],
         'start'=>$_POST['start']
     ];
-    $leave=new leave($db);
     $leave->Create($data);
     $message="تمت إضافة الإجازة بنجاح ";
 }
+if(isset($_POST['save_type'])){
+    $data=[
+        'type'=>$_POST['type']
+    ];
+    $type= new leave_type($db);
+    $type->Create($data);
+    $message="تمت إضافة  نوع الإجازة بنجاح ";
+}
 if(isset($_GET['leavestp'])){
     $filter=$_GET['leavestp'];
-    $leave= new leave($db);
 $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_type_id =  leave_type.id JOIN employees ON leaves.employee_id = employees.id WHERE leave_type.id= $filter");
 }else{
-    $leave= new leave($db);
     $leaves=$leave->select("SELECT * FROM leaves,leave_type , employees where leaves.employee_id = employees.id and leaves.leave_type_id = leave_type.id");
 }
 
@@ -83,8 +89,10 @@ $employees= $employee->All();
                         <li class="breadcrumb-item active">الاجازات </li> 
                     </ul>
                     <button id="add-leave-btn" class="btn btn-outline-success">إعطاء إجازة لموظف</button>
-
-                    <h1 class="h3 mb-2 mt-3 text-gray-800">الإجازات</h1>
+                    <div class="d-flex justify-content-between align-items-cente">
+                        <h1 class="h3 mb-2 mt-3 text-gray-800">الإجازات</h1>
+                        <button id="add-leave-type-btn" class="btn btn-outline-secondary" style="height: 50px;">إضافة نوع إجازة</button>
+                    </div>
                     
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -242,6 +250,59 @@ $employees= $employee->All();
                 const inputSave = document.createElement('input');
                 inputSave.type = 'hidden';
                 inputSave.name = 'save';
+                inputSave.value = 'true';
+                form.appendChild(inputSave);
+
+                document.body.appendChild(form);
+                form.submit(); 
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('add-leave-type-btn').addEventListener('click', async () => {
+            const { value: formValues } = await Swal.fire({
+                title: 'إضافة نوع إجازة',
+            html: `
+            <div class="form-group">
+                <label > نوع  الاجازة: </label>
+                <input id="type" type="text" class="form-control mb-2" placeholder="">
+            </div> 
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+            const type = document.getElementById("type").value;
+            if (!type) {
+                Swal.showValidationMessage('يرجى إدخال نوع الإجازة ');
+                return false;
+        }
+            return [type];
+        },
+                confirmButtonText: 'إضافة',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton:  'btn btn-secondary',
+                    title: ' text-success'
+                },
+                showCancelButton: true,
+            });
+
+            if (formValues) {
+                const [type] = formValues;
+              
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = window.location.href;
+
+                const inputtype = document.createElement('input');
+                inputtype.type = 'hidden';
+                inputtype.name = 'type';
+                inputtype.value = type;
+                form.appendChild(inputtype);
+
+                const inputSave = document.createElement('input');
+                inputSave.type = 'hidden';
+                inputSave.name = 'save_type';
                 inputSave.value = 'true';
                 form.appendChild(inputSave);
 
