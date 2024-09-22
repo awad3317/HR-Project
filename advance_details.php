@@ -3,10 +3,10 @@ include('DB/database.php');
 include('DB/employee.php');
 include('DB/department.php');
 include('DB/advance.php');
-session_start();
 
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 if(!isset($_GET['id'])){
     header("location: advance.php");
 }

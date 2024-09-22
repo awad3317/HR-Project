@@ -3,11 +3,14 @@ include('DB/database.php');
 include('DB/employee.php');
 include('DB/department.php');
 include('DB/advance.php');
-session_start();
+
+
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
+
 $employee = new employee($db);
 $employees=$employee->Count();
 $emp_salary_total=$employee->select("SELECT sum(basic_salary) AS total FROM employees");
@@ -39,6 +42,7 @@ $advance_total=$advance->select("SELECT sum(amount) AS total FROM advances");
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.css" rel="stylesheet">
     <link rel="stylesheet" href="css/sweetalert2.min.css">
+    
 
 </head>
 

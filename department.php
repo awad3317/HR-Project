@@ -2,11 +2,13 @@
 include('DB/database.php');
 include('DB/department.php');
 include('Validattion/Validator.php');
-session_start();
+
+
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 $department=new department($db);
 
 if(isset($_GET['id'])){

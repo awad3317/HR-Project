@@ -1,7 +1,7 @@
 <?php 
 include('DB/database.php');
 include('DB/employee.php');
-session_start();
+
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
 $page=explode('/',$_SERVER['HTTP_REFERER'] ?? '');
@@ -11,6 +11,7 @@ if(isset($_GET['message']) && end($page) =='add_employee3.php'){
 }
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 $employee = new employee($db);
 $employees=$employee->select("SELECT employees.id AS 'id', employees.name AS 'employee',basic_salary, departments.name AS 'department',phone,start_date,imge FROM `employees` , `departments` WHERE employees.department_id = departments.id ");
 $count=0;

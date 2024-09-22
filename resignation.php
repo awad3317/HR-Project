@@ -3,8 +3,10 @@ include('DB/database.php');
 include('Validattion/Validator.php');
 include('DB/resignation.php');
 
+
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 $resignation= new resignation($db);
 $resignations=$resignation->select("SELECT employees.id AS emp_id, employees.name AS emp_name,resignations.*  FROM employees JOIN resignations ON employees.id = resignations.employee_id");
 ?>

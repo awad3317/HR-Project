@@ -12,10 +12,9 @@ include('DB/employee_file.php');
 include('DB/allowance_employee.php');
 include('Validattion/Validator.php');
 
-session_start();
-
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 $leave= new leave($db);
 if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok']) and !isset($_POST['save_file']) and !isset($_POST['save_leave'])){
     header("location: Employee.php");
@@ -251,13 +250,21 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                 <div class="card-body">
                                     <div class="table-responsive" style="max-height: 200px;min-height: 200px; overflow-y: auto;">
                                         <table class="table table-bordered border-bottom-success" width="100%">
-                                            <tbody>
-                                                <?php $total=0; foreach($emp_advance as $advance) { ?>
+                                            <thead>
                                                 <tr>
+                                                    <th>تاريخ </th>
+                                                    <th>المقدار</th>
+                                                    <th>الاجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                
+                                                <tr>
+                                                    <?php $total=0; foreach($emp_advance as $advance) { ?>
                                                     <th class="text-center bg-gray-200"><?=$advance['date']?></th>
                                                     <th class="text-center"><?=$advance['amount']?></th> 
+                                                    <?php $total+=$advance['amount']; } ?>
                                                 </tr>
-                                                <?php $total+=$advance['amount']; } ?>
                                                 <tr>
                                                     <th class="text-center bg-gray-200">الاجمالي</th>
                                                     <th class="text-center"><?=$total?></th> 

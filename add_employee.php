@@ -6,7 +6,7 @@ include('DB/employee.php');
 include('Validattion/Validator.php');
 $database = new Database();
 $db = $database->connect();
-session_start();
+include("check_session.php");
 if(isset($_POST['save'])) {
     $data=[
         'name'=>$_POST['name'],

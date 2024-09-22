@@ -6,6 +6,7 @@ include('DB/employee.php');
 
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 $leave= new leave($db);
 if(isset($_POST['save'])){
     $data=[

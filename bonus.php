@@ -1,27 +1,28 @@
 <?php 
 include('DB/database.php');
-include('DB/jop.php');
-include('Validattion/Validator.php');
+include('DB/bonus.php');
+include('DB/employee.php');
 
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
+
 $database = new Database();
 $db = $database->connect();
-include("check_session.php");
-$jop=new jop($db);
+$bonus= new bonus($db);
 
-if(isset($_GET['id'])){
-$id= $_GET['id'];
-$jop->delete($id);
-}
+include("check_session.php");
 if(isset($_POST['save'])){
     $data=[
-    'name'=>$_POST['name'],
+        'amount'=>$_POST['amount'],
+        'date'=>date_format(date_create(),"Y-m-d"),
+        'employee_id'=>$_POST['emp']
     ];
-    $id=$jop->Create($data);
-    $message = "تم إضافة الوظيفة بنجاح.";
+    $bonus->Create($data);
+
 }
-$jops=$jop->All();
+$employee=new employee($db);
+$employees=$employee->All();
+$employee_bonus=$employee->select("SELECT employees.name AS name, employees.id AS emp_id, bonus.date AS 'date',bonus.id AS bonus_id, sum(amount) AS total FROM employees JOIN bonus ON employees.id = bonus.employee_id");
 $count=0;
 ?>
 
@@ -44,7 +45,6 @@ $count=0;
    
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.css" rel="stylesheet">
-    
 
 </head>
 
@@ -72,11 +72,11 @@ $count=0;
 
                     <ul  class="breadcrumb m-3">
                         <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
-                        <li class="breadcrumb-item active">الوظائف  </li> 
+                        <li class="breadcrumb-item active">العلاوات  </li> 
                     </ul>
                     
-                    <button id="add-job-btn" class="btn btn-outline-success">إضافة وظيفة</button>
-                    <h3 class="mb-2 mt-3 text-gray-800">الوظائف</h3>
+                    <button id="add-bonus-btn" class="btn btn-outline-success">إعطاء علاوه</button>
+                    <h3 class="mb-2 mt-3 text-gray-800">العلاوات</h3>
                     
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -86,19 +86,19 @@ $count=0;
                                     <thead>
                                         <tr>
                                             <th class="bg-gradient-success text-gray-100">#</th>
-                                            <th class="bg-gradient-success text-gray-100">الوظيفة</th>
-                                            <th class="bg-gradient-success text-gray-100">حذف</th>
+                                            <th class="bg-gradient-success text-gray-100">الموظف</th>
+                                            <th class="bg-gradient-success text-gray-100">إجمالي مقدار العلاوات</th>
+                                            <th class="bg-gradient-success text-gray-100">التفاصيل</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach($jops as $jop){ 
-                                        $count++ ?>
+                                        <?php foreach($employee_bonus as $emp){ 
+                                         $count++; ?>
                                         <tr>
                                             <td><?=$count?></td>
-                                            <td><?=htmlspecialchars($jop['name'])?></td>
-                                            <td>
-                                                <button class="btn btn-outline-danger delete-button" data-id="<?= $jop['id'] ?>">حذف</button>
-                                            </td>
+                                            <td><?=htmlspecialchars($emp['name'])?></td>
+                                            <td><?=htmlspecialchars($emp['total'])?></td>
+                                            <td><a href="?id=<?=$emp['bonus_id']?>"><button class="btn btn-outline-secondary">التفاصيل</button></a></td>
                                         </tr>
                                         <?php }?>
 
@@ -127,24 +127,35 @@ $count=0;
 
     <!-- Bootstrap core JavaScript-->
     <?php include("script.html") ?>
+
     <script>
-       document.getElementById('add-job-btn').addEventListener('click', async () => {
-    const { value: jobName } = await Swal.fire({
-        title: ' إضافة وظيفة جديده',
+       document.getElementById('add-bonus-btn').addEventListener('click', async () => {
+        const empOptions = `
+        <?php foreach ($employees as $emp) { ?>
+            <option value="<?= $emp['id'] ?>"><?= $emp['name'] ?></option>
+        <?php } ?>
+    `;
+    const { value: bonus } = await Swal.fire({
+        title: 'إعطاء علاوه جديده',
         html: `
+            <select id="emp-select" class="form-control mb-2">
+                <option value="">اختر  الموظف</option>
+                ${empOptions}
+            </select>
            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="m-0"> اسم وظيفة</h5>
+                <input id="swal-input" class="form-control mt-2" placeholder="المقدار ">
             </div>
-            <input id="swal-input" class="form-control mt-2" placeholder="اسم الوظيفة">
+            
         `,
         focusConfirm: false, 
         preConfirm: () => {
-            const name = document.getElementById("swal-input").value;
-            if (!name) {
-                Swal.showValidationMessage('يرجى إدخال اسم الوظيفة');
+            const emp = document.getElementById("emp-select").value;
+            const amount = document.getElementById("swal-input").value;
+            if (!emp || !amount) {
+                Swal.showValidationMessage('يرجى إدخال جميع الحقول');
                 return false;
         }
-            return name;
+            return [emp,amount];
         },
         confirmButtonText: 'إضافة', 
         cancelButtonText: 'إلغاء',
@@ -154,21 +165,25 @@ $count=0;
             title: ' text-success'
         },
         showCancelButton: true,
-        
-        
     });
 
-    if (jobName) {
-       
+    if (bonus) {
+        const [emp, amount] = bonus;
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = window.location.href; 
 
-        const inputName = document.createElement('input');
-        inputName.type = 'hidden';
-        inputName.name = 'name';
-        inputName.value = jobName;
-        form.appendChild(inputName);
+        const inputemp = document.createElement('input');
+        inputemp.type = 'hidden';
+        inputemp.name = 'emp';
+        inputemp.value = emp;
+        form.appendChild(inputemp);
+
+        const inputamount = document.createElement('input');
+        inputamount.type = 'hidden';
+        inputamount.name = 'amount';
+        inputamount.value = amount;
+        form.appendChild(inputamount);
 
         const inputSave = document.createElement('input');
         inputSave.type = 'hidden';
@@ -192,6 +207,7 @@ $count=0;
         });
         </script>
     <?php endif; ?>
+
 
 
 </body>

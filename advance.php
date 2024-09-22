@@ -5,8 +5,10 @@ include('DB/advance.php');
 include('Validattion/Validator.php');
 include('DB/employee.php');
 
+
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 $advance=new advance($db);
 $employee=new employee($db);
 $employees=$employee->All();

@@ -5,7 +5,7 @@ include('Validattion/Validator.php');
 include('DB/resignation.php');
 $database = new Database();
 $db = $database->connect();
-session_start();
+include("check_session.php");
 if(isset($_POST['save'])){
     $data=[
         'reason'=>$_POST['reason'],

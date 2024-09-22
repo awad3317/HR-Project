@@ -9,11 +9,10 @@ include('DB/employee_file.php');
 include('DB/allowance_employee.php');
 include('Validattion/Validator.php');
 
-session_start();
 
 $database = new Database();
 $db = $database->connect();
-
+include("check_session.php");
 if(isset($_GET['edit'])){
     header("location: add_employee2.php");
 }

@@ -5,10 +5,10 @@ include('DB/allowance.php');
 include('DB/jop.php');
 include('DB/department.php');
 include('Validattion/Validator.php');
-session_start();
 
 $database = new Database();
 $db = $database->connect();
+include("check_session.php");
 if(isset($_POST['save'])) {
     $data=[
         'type1'=>$_POST['type1'],
