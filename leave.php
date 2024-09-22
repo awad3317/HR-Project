@@ -99,7 +99,6 @@ $employees= $employee->All();
                     <div class="card shadow mb-4">
                     <div class="card-body">
                         <form class="mt-3" action="" method="get">
-                            
                             <select class="form-control" id="department" name="leavestp" >
                                 <option value="">اختر سبب الاجازه</option>
                                 <?php foreach($types as $type){?>
