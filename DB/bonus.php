@@ -15,7 +15,10 @@ class bonus{
         $result=$this->connection->query($query);
         return $result; 
     }
-
+    public function select($query){
+        $result=$this->connection->query($query);
+        return $result; 
+    }
     public function Create($data){
         $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(amount,date,employee_id ) VALUES (?,?,?)");
         $stmt->bind_param('isi',$data['amount'],$data['date'],$data['employee_id']);

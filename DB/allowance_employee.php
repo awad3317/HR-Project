@@ -23,6 +23,11 @@ class allowance_employee{
         $stmt->execute();
         return $this->connection->insert_id;
     }
+    public function delete($id){
+        $query = "DELETE FROM " . $this->table . " WHERE id = $id";
+        $result=$this->connection->query($query);
+        return $result; 
+    }
     public function Create($data){
         $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(allowance_id , employee_id , amount) VALUES (?,?,?)");
         $stmt->bind_param('iii',$data['type1'],$data['employee_id'],$data['allowance1']);

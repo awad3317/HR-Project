@@ -14,6 +14,7 @@ include('Validattion/Validator.php');
 
 $database = new Database();
 $db = $database->connect();
+$allowance_employee= new allowance_employee($db);
 include("check_session.php");
 $leave= new leave($db);
 if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok']) and !isset($_POST['save_file']) and !isset($_POST['save_leave'])){
@@ -39,6 +40,10 @@ if(isset($_POST['save_leave'])){
     ];
     $leave->Create($data);
 }
+if(isset($_GET['allowance_id'])){
+    $allowance_id=$_GET['allowance_id'];
+    $allowance_employee->delete($allowance_id);
+}
 
 if(isset($_POST['save_file'])){
     $path='Upload/'.random_int(999,99999).$_FILES['file']['name'];
@@ -58,7 +63,7 @@ if(isset($_POST['save'])){
         'allowance1'=>$_POST['amount'],
         'employee_id'=>$_POST['emp_id']
     ];
-    $allowance_employee= new allowance_employee($db);
+    
     $allowance_employee->Create($data);
     $emp_id=$_POST['emp_id'];
 }
@@ -74,10 +79,10 @@ $emp = $employee->select("SELECT emp.*, dep.name AS dep_name, jop.name AS jop_na
                         JOIN jops AS jop ON emp.jop_id = jop.id
                         WHERE emp.id = $emp_id");
 
-$emp_allowance=$employee->select("SELECT allowance_employee.amount AS amount, allowances.name AS allowance_name FROM allowance_employee 
+$emp_allowance=$employee->select("SELECT allowance_employee.id AS allowance_id ,allowance_employee.amount AS amount, allowances.name AS allowance_name FROM allowance_employee 
                                 JOIN allowances ON allowance_employee.allowance_id = allowances.id 
                                 WHERE allowance_employee.employee_id=$emp_id");
-$emp_file=$employee->select("SELECT path,type FROM employee_file AS emp_file JOIN file ON emp_file.file_id = file.id WHERE emp_file.employee_id = $emp_id ");
+$emp_file=$employee->select("SELECT emp_file.id AS file_id ,path,type FROM employee_file AS emp_file JOIN file ON emp_file.file_id = file.id WHERE emp_file.employee_id = $emp_id ");
 $emp_advance=$employee->select("SELECT * FROM advances WHERE employee_id = $emp_id");
 $allowance= new allowance($db);
 $allowances=$allowance->All();
@@ -201,11 +206,19 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                 <div class="card-body">
                                     <div class="table-responsive" style="max-height: 200px; min-height: 200px; overflow-y: auto;">
                                         <table class="table table-bordered border-bottom-success" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200">البدل</th>
+                                                    <th class="text-center bg-gray-200">المبلغ</th>
+                                                    <th class="text-center bg-gray-200">الإجراءات</th>
+                                                </tr>
+                                            </thead>
                                             <tbody>
                                                 <?php foreach($emp_allowance as $allowance) { ?>
                                                 <tr>
-                                                    <th class="text-center bg-gray-200"><?=$allowance['allowance_name']?></th>
+                                                    <th class="text-center"><?=$allowance['allowance_name']?></th>
                                                     <th class="text-center"><?=$allowance['amount']?></th>
+                                                    <th><a id="btn-delete-allowance" class="btn btn-outline-danger" href="employee_details.php?allowance_id=<?=$allowance['allowance_id']?>&id=<?=$emp_id?>">حدف</a></th>
                                                 </tr>
                                                 <?php } ?>
                                             </tbody>
@@ -223,13 +236,20 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                 <div class="card-body">
                                     <div class="table-responsive" style="max-height: 200px; min-height: 200px; overflow-y: auto;">
                                         <table class="table table-bordered border-bottom-success" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200">المرفق</th>
+                                                    <th class="text-center bg-gray-200">الإجراءات</th>
+                                                </tr>
+                                            </thead>
                                             <tbody>
                                                 <?php foreach($emp_file as $file) { ?>
                                                 <tr>
-                                                    <th class="text-center bg-gray-200"><?=$file['type']?></th>
+                                                    <th class="text-center "><?=$file['type']?></th>
                                                     <th class="text-center">
                                                         <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
                                                         <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
+                                                        <a href="employee_details.php?file_id<?=$file['file_id']?>&id=<?=$emp_id?>" class="btn btn-outline-danger btn-md">حدف</a>
                                                     </th> 
                                                 </tr>
                                                 <?php } ?>
@@ -252,17 +272,18 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                         <table class="table table-bordered border-bottom-success" width="100%">
                                             <thead>
                                                 <tr>
-                                                    <th>تاريخ </th>
-                                                    <th>المقدار</th>
-                                                    <th>الاجراءات</th>
+                                                    <th class="text-center bg-gray-200">تاريخ </th>
+                                                    <th class="text-center bg-gray-200">المقدار</th>
+                                                    
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 
                                                 <tr>
                                                     <?php $total=0; foreach($emp_advance as $advance) { ?>
-                                                    <th class="text-center bg-gray-200"><?=$advance['date']?></th>
-                                                    <th class="text-center"><?=$advance['amount']?></th> 
+                                                    <th class="text-center"><?=$advance['date']?></th>
+                                                    <th class="text-center"><?=$advance['amount']?></th>
+                                                   
                                                     <?php $total+=$advance['amount']; } ?>
                                                 </tr>
                                                 <tr>

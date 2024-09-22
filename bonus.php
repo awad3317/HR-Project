@@ -5,11 +5,11 @@ include('DB/employee.php');
 
 unset($_SESSION['data_basic']);
 unset($_SESSION['allowances']);
-
+$bo=false;
 $database = new Database();
 $db = $database->connect();
 $bonus= new bonus($db);
-
+$employee=new employee($db);
 include("check_session.php");
 if(isset($_POST['save'])){
     $data=[
@@ -20,9 +20,16 @@ if(isset($_POST['save'])){
     $bonus->Create($data);
 
 }
-$employee=new employee($db);
+
+if(isset($_POST['emp_id'])){
+    $emp_id=$_POST['emp_id'];
+    $bonu=$bonus->select("SELECT employees.name,bonus.amount,bonus.date FROM employees JOIN bonus ON employees.id = bonus.employee_id WHERE employees.id=$emp_id");
+    $bo=true;
+}
+
 $employees=$employee->All();
-$employee_bonus=$employee->select("SELECT employees.name AS name, employees.id AS emp_id, bonus.date AS 'date',bonus.id AS bonus_id, sum(amount) AS total FROM employees JOIN bonus ON employees.id = bonus.employee_id");
+
+$employee_bonus=$employee->select("SELECT employees.name AS name, employees.id AS emp_id, bonus.date AS 'date',bonus.id AS bonus_id, sum(amount) AS total FROM employees JOIN bonus ON employees.id = bonus.employee_id Group by employees.name");
 $count=0;
 ?>
 
@@ -98,7 +105,7 @@ $count=0;
                                             <td><?=$count?></td>
                                             <td><?=htmlspecialchars($emp['name'])?></td>
                                             <td><?=htmlspecialchars($emp['total'])?></td>
-                                            <td><a href="?id=<?=$emp['bonus_id']?>"><button class="btn btn-outline-secondary">التفاصيل</button></a></td>
+                                            <td><form action="" method="post"> <input type="hidden" name="emp_id" value="<?=$emp['emp_id']?>"> <input class="btn btn-outline-secondary" type="submit" value="التفاصيل"> </form></td>
                                         </tr>
                                         <?php }?>
 
@@ -206,6 +213,43 @@ $count=0;
             showConfirmButton: false
         });
         </script>
+    <?php endif; ?>
+    <?php if (isset($bo) and $bo==true ): ?>
+    <script>
+     Swal.fire({
+        title: ' <?php foreach($bonu as $bon) { echo htmlspecialchars($bon['name']); break; } ?> ',
+        html: `
+            <div class="card shadow mb-4">  
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 200px; min-height: 200px; overflow-y: auto;">
+                                        <table class="table table-bordered border-bottom-success" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center bg-gray-200">التاريخ</th>
+                                                    <th class="text-center bg-gray-200">المقدار</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php  foreach($bonu as $bon) { ?>
+                                                <tr>
+                                                    <th class="text-center"><?=htmlspecialchars($bon['date'])?></th>
+                                                    <th class="text-center"><?=htmlspecialchars($bon['amount'])?></th>
+                                                    
+                                                </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+        `,
+        focusConfirm: false, 
+        customClass: {
+            
+        },
+        
+    });
+    </script>
     <?php endif; ?>
 
 
