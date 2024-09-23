@@ -10,15 +10,23 @@ include('DB/leave_type.php');
 include('DB/department.php');
 include('DB/employee_file.php');
 include('DB/allowance_employee.php');
+include('DB/resignation.php');
 include('Validattion/Validator.php');
-
+unset($_SESSION['data_basic']);
+unset($_SESSION['allowances']);
 $database = new Database();
 $db = $database->connect();
 $allowance_employee= new allowance_employee($db);
+$employee_file= new employee_file($db);
+$resignation=new resignation($db);
 include("check_session.php");
 $leave= new leave($db);
 if(!isset($_GET['id']) and !isset($_POST['save']) and !isset($_POST['ok']) and !isset($_POST['save_file']) and !isset($_POST['save_leave'])){
     header("location: Employee.php");
+}
+if(isset($_POST['payment'])){
+    $id=$_GET['payment'];
+
 }
 if(isset($_POST['ok'])){
     $data=[
@@ -53,8 +61,21 @@ if(isset($_POST['save_file'])){
         'path1'=>$path,
         'employee_id'=>$_POST['emp_id']
     ];
-    $employee_file= new employee_file($db);
+    
     $employee_file->Create($data);
+}
+
+if(isset($_GET['file_delete_id'])){
+    $id_file=$_GET['file_delete_id'];
+    $file=$employee_file->find($id_file);
+    foreach($file as $f){
+        if(file_exists($f['path'])){
+            unlink($f['path']);
+        }
+    }
+    $emp_id=$_GET['id'];
+    $employee_file->delete($id_file);
+    header("location: employee_details.php?id=$emp_id");
 }
 
 if(isset($_POST['save'])){
@@ -66,6 +87,7 @@ if(isset($_POST['save'])){
     
     $allowance_employee->Create($data);
     $emp_id=$_POST['emp_id'];
+    header("location: employee_details.php?id=$emp_id");
 }
 if(isset($_GET['id'])){
     $emp_id=$_GET['id'];
@@ -91,7 +113,8 @@ $file_types=$file_type->All();
 $leave_type= new leave_type($db);
 $types=$leave_type->All();
 $employees= $employee->All();
-$leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_type_id = leave_type.id WHERE leaves.employee_id= $emp_id")
+$leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_type_id = leave_type.id WHERE leaves.employee_id= $emp_id");
+$resignations_type =$resignation->select("SELECT type FROM resignations JOIN employees ON employees.id = resignations.employee_id WHERE resignations.employee_id=$emp_id");
 ?>
 
 
@@ -191,6 +214,12 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                 <div class="col-md-6 custom-col">
                                     <p><strong>الوظيفة:</strong> <?=$e['jop_name']?> </p>
                                 </div>
+                                <div class="col-md-6 custom-col">
+                                    <p><strong>الحالة الوظيفية:</strong> <?php if($resignations_type->num_rows == 0){echo 'قيد العمل';}else{foreach($resignations_type as $type){echo $type['type'];}}   ?> </p>
+                                </div>
+                                <div class="col-md-6 custom-col">
+                                    <p><strong> تعديل البيانات:</strong> <a  href="edit_employee.php?id=<?=$e['id']?>">تعديل</a> </p>
+                                </div>
                             </div>
                         </div>
                         <?php }?>
@@ -249,7 +278,7 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                                     <th class="text-center">
                                                         <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-secondary btn-md" download="مرفق">تحميل</a>
                                                         <a href="<?=$file['path']?>" target="_blank" class="btn btn-outline-success btn-md">فتح</a>
-                                                        <a href="employee_details.php?file_id<?=$file['file_id']?>&id=<?=$emp_id?>" class="btn btn-outline-danger btn-md">حدف</a>
+                                                        <a href="employee_details.php?file_delete_id=<?=$file['file_id']?>&id=<?=$emp_id?>" class="btn btn-outline-danger btn-md">حدف</a>
                                                     </th> 
                                                 </tr>
                                                 <?php } ?>
@@ -274,21 +303,25 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
                                                 <tr>
                                                     <th class="text-center bg-gray-200">تاريخ </th>
                                                     <th class="text-center bg-gray-200">المقدار</th>
+                                                    <th class="text-center bg-gray-200">الإجراءات</th>
                                                     
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 
-                                                <tr>
+                                                
                                                     <?php $total=0; foreach($emp_advance as $advance) { ?>
+                                                    <tr>
                                                     <th class="text-center"><?=$advance['date']?></th>
                                                     <th class="text-center"><?=$advance['amount']?></th>
-                                                   
+                                                    <th><a href="payment.php?id=<?=$advance['id']?>"><button class="btn btn-outline-secondary btn-sm" id="add-payment-btn"> تسديد</button></a></th>
+                                                    </tr>
                                                     <?php $total+=$advance['amount']; } ?>
-                                                </tr>
+                                                
                                                 <tr>
                                                     <th class="text-center bg-gray-200">الاجمالي</th>
                                                     <th class="text-center"><?=$total?></th> 
+                                                    
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -413,13 +446,13 @@ $leaves=$leave->select("SELECT * FROM leaves JOIN leave_type ON leaves.leave_typ
         const allowanceInput = document.createElement('input');
         allowanceInput.type = 'hidden';
         allowanceInput.name = 'type';
-        allowanceInput.value = allowanceId; // استخدم allowanceId هنا
+        allowanceInput.value = allowanceId; 
         form.appendChild(allowanceInput);
 
         const amountInput = document.createElement('input');
         amountInput.type = 'hidden';
         amountInput.name = 'amount';
-        amountInput.value = amountValue; // استخدم amountValue هنا
+        amountInput.value = amountValue; 
         form.appendChild(amountInput);
 
         const empIdInput = document.createElement('input');

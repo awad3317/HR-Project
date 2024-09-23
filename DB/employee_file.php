@@ -27,6 +27,11 @@ class employee_file{
         }
         return $this->connection->insert_id;
     }
+    public function delete($id){
+        $query = "DELETE FROM " . $this->table . " WHERE id = $id";
+        $result=$this->connection->query($query);
+        return $result; 
+    }
     public function Create($data){
         $stmt=$this->connection->prepare("INSERT INTO " . $this->table . "(employee_id, file_id, path) VALUES (?,?,?)");
         $stmt->bind_param('iis',$data['employee_id'],$data['type1'],$data['path1']);

@@ -102,6 +102,7 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
                                             <th class=" bg-gray-300">#</th>
                                             <th class=" bg-gray-300">المبلغ</th>
                                             <th class=" bg-gray-300">التاريخ </th>
+                                            <th class=" bg-gray-300">الإجراءات </th>
                                             
                                         </tr>
                                     </thead>
@@ -112,14 +113,15 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
                                             <th><?=$count?></th>
                                             <th><?=$adv['amount']?></th>
                                             <th><?=$adv['date']?></th>
+                                            <th><a href="payment.php?id=<?=$adv['id']?>"><button class="btn btn-outline-secondary btn-sm" id="add-payment-btn"> تسديد</button></a></th>
                                         </tr>
                                         <?php }?>
                                     </tbody>
                                     <tfoot>
                                     <?php foreach($total as $tot) {?>
                                         <tr>
-                                            <th>الاجمالي</th>
-                                            <th colspan="2"><?=$tot['total']?></th>
+                                            <th >الاجمالي</th>
+                                            <th colspan="3"><?=$tot['total']?></th>
                                         </tr>
                                         <?php }?>
                                     </tfoot>

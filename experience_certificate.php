@@ -39,7 +39,7 @@ $html = '
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
+    <title>شهادة خبرة</title>
     <style>
         body {
             font-family: "DejaVu Sans", sans-serif;
@@ -68,45 +68,33 @@ $html = '
             direction: ltr; /* لإظهار الأرقام من اليسار إلى اليمين */
             text-align: left; /* محاذاة الأرقام إلى اليسار */
         }
-        
     </style>
 </head>
 <body>
-   <h1>مدارس الابداع </h1>
-    <h1>بيانات الموظف</h1>
+    <h1>شهادة خبرة</h1>
+    <hr>
+    <p>تشهد إدارة مدارس الإبداع الأهلية بالقطن بأن:</p>
     <table>
         <tr>
-            <td>' . htmlspecialchars($name) . '</td>
-            <th>الاسم</th>
-            <td>' . htmlspecialchars($divinity_no) . '</td>
-            <th>رقم الهوية</th>
-        </tr>
-            
-        <tr>
-            <td>' . htmlspecialchars($birthday) . '</td>
-            <th>تاريخ الميلاد</th>
-            <td>'. htmlspecialchars($years).'  سنوات و  '.htmlspecialchars($months) .' اشهر و '.htmlspecialchars($days) .' ايام</td>
-            <th>فترة العمل</th>      
+            <th>اسم الموظف</th>
+            <td>أدخل اسم الموظف هنا</td>
         </tr>
         <tr>
-            <td>' . htmlspecialchars($phone) . '</td>
-            <th>رقم التواصل</th>
-            <td>' . htmlspecialchars($address) . '</td>
-            <th>العنوان</th>
+            <th>الوظيفة</th>
+            <td>أدخل الوظيفة هنا</td>
         </tr>
         <tr>
-            <td >' . htmlspecialchars($salary) . '</td>
-            <th>الراتب الأساسي</th>
-             <td>' . htmlspecialchars($sex) . '</td>
-            <th>الجنس</th>
+            <th>من سنة</th>
+            <td class="number">أدخل سنة البداية هنا</td>
         </tr>
         <tr>
-        <td>' . htmlspecialchars($dep) . '</td>
-            <th>القسم</th>
-            <td>' . htmlspecialchars($jop) . '</td>
-            <th>الوظيفة</th> 
+            <th>إلى سنة</th>
+            <td class="number">أدخل سنة النهاية هنا</td>
         </tr>
     </table>
+    <p>وبهذا، نؤكد أن الموظف المذكور أعلاه قد عمل لدينا خلال الفترة المحددة.</p>
+    <p>تاريخ: ____________</p>
+    <p>التوقيع: ____________</p>
 </body>
 </html>
 ';

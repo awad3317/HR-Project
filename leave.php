@@ -115,7 +115,7 @@ $employees= $employee->All();
                                 <th class="bg-gradient-success text-gray-100">الموظف</th>
                                 <th class="bg-gradient-success text-gray-100">السبب</th>
                                 <th class="bg-gradient-success text-gray-100">البدء</th>
-                                <th class="bg-gradient-success text-gray-100">النهاية</th>
+                                <th class="bg-gradient-success text-gray-100">حالتها</th>
                             </tr>
                             </thead>
                             <tbody>

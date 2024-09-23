@@ -1,67 +1,113 @@
 <?php
 include('DB/database.php');
-include('DB/department.php');
-include('DB/jop.php');
 include('DB/employee.php');
+include('DB/jop.php'); 
+include('DB/department.php');
 include('Validattion/Validator.php');
+unset($_SESSION['data_basic']);
+unset($_SESSION['allowances']);
 $database = new Database();
 $db = $database->connect();
+if(!isset($_GET['id'])){
+   header("location: home.php");
+}
 include("check_session.php");
-if(isset($_POST['save'])) {
+$emp_id=$_GET['id'];
+$employee=new employee($db);
+$jop=new jop($db);
+$department=new department($db);
+if(isset($_POST['update'])){
+    if(isset($_POST['image'])){
+
+    }
     $data=[
-        'name'=>$_POST['name'],
-        'divinity_no'=>$_POST['divinity_no'],
-        'sex'=>$_POST['sex']=="1"?true:false,
-        'start_date'=>date_format(date_create(),'Y-m-d'),
-        'birthdate'=>$_POST['birthdate'],
-        'phone'=>$_POST['phone'],
-        'address'=>$_POST['address'],
-        'imge'=>'',
-        'basic_salary'=>$_POST['salary'],
-        'department'=>$_POST['department'],
-        'jop'=>$_POST['jop'],
-        'email'=>$_POST['email'],
+    'name'=>$_POST['name'],
+    'basic_salary'=>$_POST['salary'],
+    'sex'=>$_POST['sex'],
+    'start_date'=>$_POST['start_date'],
+    'birthdate'=>$_POST['birthdate'],
+    'phone'=>$_POST['phone'],
+    'address'=>$_POST['address'],
+    'image'=>$_POST['name'],
+    'divinity_no'=>$_POST['divinity_no'],
+    'department'=>$_POST['department'],
+    'jop'=>$_POST['jop']
+    ];
+
+}
+$emps=$employee->select("SELECT emp.*, dep.id AS dep_id, jop.id AS jop_id
+FROM employees AS emp 
+JOIN departments AS dep ON emp.department_id = dep.id
+JOIN jops AS jop ON emp.jop_id = jop.id
+WHERE emp.id = $emp_id");
+$jops=$jop->All();
+$departments=$department->All();
+foreach($emps as $emp){
+    $emp_id=$emp['id'];
+    $name=$emp['name'];
+    $basic_salary=$emp['basic_salary'];
+    $sex=$emp['sex'];
+    $birthday=$emp['birthday'];
+    $phone=$emp['phone'];
+    $address=$emp['address'];
+    $image=$emp['imge'];
+    $divinity_no=$emp['divinity_no'];
+    $department_id=$emp['department_id'];
+    $jop_id=$emp['jop_id'];
+    $email=$emp['email'];
+    $start_date=$emp['start_date'];
+}
+
+if(isset($_POST['update'])){
+    if(!empty($_FILES['image']['name'])){
+        $path='Upload/'.random_int(999,99999).$_FILES['image']['name'];
+        move_uploaded_file($_FILES['image']['tmp_name'],$path);
+        if(file_exists($image)){
+            unlink($image);
+        }
+    }
+    else{
+        $path=$_POST['img'];
+    }
+    $data=[
+    'name'=>$_POST['name'],
+    'basic_salary'=>$_POST['salary'],
+    'sex'=>$_POST['sex'],
+    'start_date'=>$_POST['start_date'],
+    'birthdate'=>$_POST['birthdate'],
+    'phone'=>$_POST['phone'],
+    'address'=>$_POST['address'],
+    'image'=>$path,
+    'divinity_no'=>$_POST['divinity_no'],
+    'department'=>$_POST['department'],
+    'jop'=>$_POST['jop'],
+    'email'=>$_POST['email']
     ];
     $rules=[
-        'name'=>'required|full_name|unique:employees,name',
-        'divinity_no'=>'required|unique:employees,divinity_no',
+        'name'=>'required|full_name',
+        'divinity_no'=>'required|',
         'email'=>'email',
         'basic_salary'=>'required',
         'department'=>'required',
-        'sex'=>'required|boolean',
+        'sex'=>'required',
         'jop'=>'required',
         'birthdate'=>'required',
-        'phone'=>'required|unique:employees,phone',
+        'phone'=>'required|',
         'address'=>'required',
     ];
     $validation= new Validator($db);
    if($validation->validate($data,$rules)){
-        if($_FILES['image']['tmp_name']){
-            $imageData = file_get_contents($_FILES['image']['tmp_name']);
-            $base64Image = base64_encode($imageData);
-            $data['image'] = 'data:' . $_FILES['image']['type'] . ';base64,' . $base64Image;
-        }else{
-            $data['image'] = $_POST['img'] ;
-        }
-            
-        session_start();
-        $_SESSION['data_basic'] = $data;
-        header("Location: add_employee2.php");
-        exit; 
+    $employee->Update($data,$emp_id);
+    header("location: employee_details.php?id=$emp_id");
+        
    } 
    else{
     $validation=$validation->errors(); 
-    
+    var_dump($validation);
+    exit;
    }
+   
 }
-if(isset($_SESSION['data_basic'])){
-    $data=$_SESSION['data_basic'];
-    unset($_SESSION['data_basic']);
-}
-$jop=new jop($db);
-$jops=$jop->All();
-$department=new department($db);
-$departments=$department->All();
 ?>
 
 <!DOCTYPE html>
@@ -111,7 +157,7 @@ $departments=$department->All();
                     <ul  class="breadcrumb m-3">
                             <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
                             <li class="breadcrumb-item "><a href="Employee.php" class='text-success'>الموظفين</a> </li>
-                            <li class="breadcrumb-item active">إضافة موظف جديد </li> 
+                            <li class="breadcrumb-item active">تعديل بيانات الموظف  </li> 
                          </ul>
                     <h1 class="h3 mb-2 text-gray-800">المعلومات الاساسية </h1>
                     <form action="" method="POST" enctype="multipart/form-data">
@@ -119,13 +165,13 @@ $departments=$department->All();
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="name">الاسم: <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['name'][0])){echo $validation['name'][0];}?></span></label>
-                                    <input type="text" class="form-control" value="<?=$data['name']??''?>" id="name" name="name" required>
+                                    <input type="text" class="form-control" value="<?=$name?>" id="name" name="name" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="email">رقم الهوية : <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['divinity_no'][0])){echo $validation['divinity_no'][0];}?></span></label>
-                                    <input type="text" class="form-control" value="<?=$data['divinity_no']??''?>" id="email" name="divinity_no" required>
+                                    <label for="email">رقم الهوية : <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="<?=$divinity_no?>" id="divinity_no" name="divinity_no" required>
                                 </div>
                             </div>
                         </div>
@@ -133,13 +179,13 @@ $departments=$department->All();
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="email">البريد الإلكتروني:</label>
-                                    <input type="email" class="form-control" value="<?=$data['email']??''?>" id="email" name="email">
+                                    <input type="email" class="form-control" value="<?=$email??''?>" id="email" name="email">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="email">الراتب الاساسي  : <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" value="<?=$data['basic_salary']??''?>" id="salary" name="salary" required>
+                                    <input type="text" class="form-control" value="<?=$basic_salary?>" id="salary" name="salary" required>
                                 </div>
                             </div>
                         </div>
@@ -151,7 +197,7 @@ $departments=$department->All();
                     <select class="form-control" id="department" name="department" required>
                         <option value="">اخترالقسم</option>
                         <?php foreach($departments as $department){?>
-                            <?php if($department['id']==$data['department']){ ?>
+                            <?php if($department['id']==$department_id){ ?>
                         <option selected value="<?=$department['id']?>"> <?=$department['name']?></option>
                         <?php } else{?>
                             <option value="<?=$department['id']?>"> <?=$department['name']?></option>
@@ -163,7 +209,7 @@ $departments=$department->All();
                 <div class="form-group">
                     <label>الجنس: <span class="text-danger">*</span></label><br>
                     <div class="form-check form-check-inline">
-                    <?php if(isset($data['sex']) && $data['sex'] == '1'){ ?>
+                    <?php if( $sex == '1'){ ?>
                         <input class="form-check-input" type="radio" id="male" name="sex" value="1" required checked>
                         <?php } else{?>
                         <input class="form-check-input" type="radio" id="male" name="sex" value="1" required>
@@ -171,7 +217,7 @@ $departments=$department->All();
                         <label class="form-check-label" for="male">ذكر</label>
                     </div>
                     <div class="form-check form-check-inline">
-                    <?php if(isset($data['sex']) && $data['sex'] == '0'){ ?>
+                    <?php if( $sex == '0'){ ?>
                         <input class="form-check-input" type="radio" id="female" name="sex" value="0" required checked>
                         <?php } else{?>
                         <input class="form-check-input" type="radio" id="female" name="sex" value="0" required>
@@ -189,7 +235,7 @@ $departments=$department->All();
                     <select class="form-control" id="department" name="jop" required>
                         <option value="">اختر الوظيفة</option>
                         <?php foreach($jops as $jop){?>
-                        <?php if($jop['id']==$data['jop']){ ?>
+                        <?php if($jop['id']==$jop_id){ ?>
                         <option selected value="<?=$jop['id']?>"> <?=$jop['name']?></option>
                         <?php } else{?>
                             <option value="<?=$jop['id']?>"> <?=$jop['name']?></option>
@@ -200,31 +246,30 @@ $departments=$department->All();
             <div class="col-md-6">
             <div class="form-group">
                     <label for="birthdate">تاريخ الميلاد: <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" id="birthdate" value="<?=$data['birthdate']??''?>" name="birthdate" required>
+                    <input type="date" class="form-control" id="birthdate" value="<?=$birthday?>" name="birthdate" required>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="name">رقم التواصل : <span class="text-danger">*</span><span class="text-danger"><?php if(isset($validation['phone'][0])){echo $validation['phone'][0];}?></span></label>
-                    <input type="text" class="form-control" value="<?=$data['phone']??''?>" id="phone" name="phone" required>
+                    <label for="name">رقم التواصل : <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" value="<?=$phone?>" id="phone" name="phone" required>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="email">العنوان  : <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" value="<?=$data['address']??''?>" id="address" name="address" required>
+                    <input type="text" class="form-control" value="<?=$address?>" id="address" name="address" required>
                 </div>
             </div>
         </div>
         <div class="row">
-            <?php if(isset($data['image'])){ ?>
             <div class="col-md-6">
                 <div class="form-group">
                         <div class="col-md-3 text-center">
-                            <img id="profileImage" src="<?=$data['image']?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
-                            <input type="hidden" value="<?=$data['image']?>" name="img">
+                            <img id="profileImage" src="<?=$image?>" alt="صورة الموظف" class="img-thumbnail" width="200" height="200">
+                            <input type="hidden" value="<?=$image?>" name="img">
                         </div>
                 </div>
             </div>
@@ -237,21 +282,10 @@ $departments=$department->All();
                     </div>
                 </div>
             </div>
-            <?php } else{ ?>
-                <div class="col-md-12">
-                <div class="form-group">
-                    <label for="image">تحميل الصورة: <span class="text-danger">*</span></label>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
-                        <label class="custom-file-label" for="image">رفع ملف الصورة</label>
-                    </div>
-                </div>
-            </div>
-            <?php }?>
 
-            
+            <input type="hidden" name="start_date" value="<?=$start_date?>">
         </div>
-        <button type="submit" name="save" class="btn btn-outline-success">إضافة موظف</button>
+        <button type="submit" name="update" class="btn btn-outline-success">تعديل بيانات الموظف</button>
     </form>
                 
 

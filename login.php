@@ -27,7 +27,7 @@ if (isset($_POST['submit']))
         $_SESSION['user_id']=$user_id;
         header("location: home.php");
     }else{
-        echo "erorr";
+        $message="أسم المستخدم او كلمة السر غير صحيحة ";
     }
 
 }
@@ -167,6 +167,7 @@ if (isset($_POST['submit']))
     </style>
 </head>
 <body>
+    
 
 <div class="wave"></div>
 <div class="container">
@@ -176,6 +177,9 @@ if (isset($_POST['submit']))
 
     <h2 >مرحباً بعودتك!</h2>
     <p>الرجاء إدخال التفاصيل الخاصة بك</p>
+    <?php if(isset($message)){ ?>
+        <div style="text-align:center" class="alert alert-secondary"><?=$message?></div>
+    <?php }?>
    <?php
 
    ?>
@@ -183,12 +187,9 @@ if (isset($_POST['submit']))
         <input type="text" placeholder="اسم المستخدم" name="usrename" required>
         <input type="password" placeholder="كلمة المرور" name="password" required>
         <div class="forgot-password">
-
         </div>
         <button type="submit" class="login-btn" name="submit" >تسجيل الدخول</button>
     </form>
-
-
 </div>
 
 </body>
