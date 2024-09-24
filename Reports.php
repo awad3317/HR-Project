@@ -74,7 +74,7 @@ $count=0;
                                             <th class="bg-gradient-success text-gray-100">#</th>
                                             <th class="bg-gradient-success text-gray-100">الموظف</th>
                                             <th class="bg-gradient-success text-gray-100">شهادة خبرة</th>
-                                            <th class="bg-gradient-success text-gray-100">تقرير عام</th>
+                                            <th class="bg-gradient-success text-gray-100">بيانات الموظف</th>
                                         </tr>
                                     </thead>
                                     

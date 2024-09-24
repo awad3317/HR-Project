@@ -12,6 +12,11 @@ class ComposerStaticInit90d5f9616139a027256459cd14b8e1ab
             'Svg\\' => 4,
             'Sabberworm\\CSS\\' => 15,
         ),
+        'P' => 
+        array (
+            'PhpOffice\\PhpWord\\' => 18,
+            'PhpOffice\\Math\\' => 15,
+        ),
         'M' => 
         array (
             'Masterminds\\' => 12,
@@ -34,6 +39,14 @@ class ComposerStaticInit90d5f9616139a027256459cd14b8e1ab
         'Sabberworm\\CSS\\' => 
         array (
             0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
+        ),
+        'PhpOffice\\PhpWord\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpword/src/PhpWord',
+        ),
+        'PhpOffice\\Math\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/math/src/Math',
         ),
         'Masterminds\\' => 
         array (

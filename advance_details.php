@@ -12,7 +12,22 @@ if(!isset($_GET['id'])){
 }
 $emp_id=$_GET['id'];
 $advance=new advance($db);
-$advances=$advance->select("SELECT * FROM advances WHERE employee_id=$emp_id");
+$advances=$advance->select("SELECT 
+    a.id AS advance_id,
+    a.amount AS total_advance,
+    a.date AS advance_date,
+    COALESCE(SUM(p.amount), 0) AS total_paid,
+    (a.amount - COALESCE(SUM(p.amount), 0)) AS remaining_balance
+FROM 
+    advances a
+LEFT JOIN 
+    payments p ON a.id = p.advance_id
+WHERE 
+    a.employee_id =$emp_id
+GROUP BY 
+    a.id, a.amount
+ORDER BY 
+    a.id;");
 $total=$advance->select("SELECT SUM(amount) AS total FROM advances WHERE employee_id=$emp_id");
 $employee=new employee($db);
 $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name' FROM employees JOIN departments ON  (departments.id = employees.department_id and employees.id=$emp_id)");
@@ -63,8 +78,8 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
 
                     <!-- Page Heading -->
                     <ul class="breadcrumb m-3">
-                            <li class="breadcrumb-item"> <a href="home.php">الرئيسية</a></li> 
-                            <li class="breadcrumb-item "><a href="advance.php">السلف</a> </li>
+                            <li class="breadcrumb-item"> <a href="home.php" class='text-success'>الرئيسية</a></li> 
+                            <li class="breadcrumb-item "><a href="advance.php" class='text-success'>السلف</a> </li>
                             <li class="breadcrumb-item active">عرض تفاصيل السلفة   </li> 
                          </ul>
                     <div>
@@ -100,8 +115,10 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
                                     <thead>
                                         <tr>
                                             <th class=" bg-gray-300">#</th>
-                                            <th class=" bg-gray-300">المبلغ</th>
                                             <th class=" bg-gray-300">التاريخ </th>
+                                            <th class=" bg-gray-300">المبلغ</th>
+                                            <th class=" bg-gray-300"> المدفوعات</th>
+                                            <th class=" bg-gray-300"> المتبقي</th>
                                             <th class=" bg-gray-300">الإجراءات </th>
                                             
                                         </tr>
@@ -111,9 +128,15 @@ $employees=$employee->select("SELECT employees.* ,departments.name AS 'dep_name'
                                            $count++; ?>
                                         <tr>
                                             <th><?=$count?></th>
-                                            <th><?=$adv['amount']?></th>
-                                            <th><?=$adv['date']?></th>
-                                            <th><a href="payment.php?id=<?=$adv['id']?>"><button class="btn btn-outline-secondary btn-sm" id="add-payment-btn"> تسديد</button></a></th>
+                                            <th><?=$adv['advance_date']?></th>
+                                            <th><?=$adv['total_advance']?></th>
+                                            <th><?=$adv['total_paid']?></th>
+                                            <th><?=$adv['remaining_balance']?></th>
+                                            <?php if($adv['total_paid'] != $adv['total_advance']){ ?>
+                                            <th><a href="payment.php?id=<?=$adv['advance_id']?>"><button class="btn btn-outline-secondary btn-sm" id="add-payment-btn"> تسديد</button></a></th>
+                                            <?php } else{?>
+                                                <th><button class="btn btn-success btn-sm" id="add-payment-btn"> تم السداد</button></th>
+                                                <?php }?>
                                         </tr>
                                         <?php }?>
                                     </tbody>

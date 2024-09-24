@@ -23,7 +23,37 @@ if (isset($_POST['save'])) {
     
 }
 
-$results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'dep_name',employees.id AS 'emp_id', employees.name AS 'emp_name', employees.phone AS 'emp_phone' FROM advances JOIN employees ON advances.employee_id= employees.id JOIN departments ON employees.department_id = departments.id group by advances.employee_id");
+$results=$advance->select("SELECT 
+    e.id AS emp_id,
+    e.name,
+    total_advance,
+    total_paid,
+    (total_advance - total_paid) AS remaining_balance
+FROM 
+    employees e
+INNER JOIN (
+    SELECT 
+        employee_id,
+        SUM(amount) AS total_advance
+    FROM 
+        advances
+    GROUP BY 
+        employee_id
+) AS a ON e.id = a.employee_id
+INNER JOIN (
+    SELECT 
+        a.employee_id,
+        SUM(p.amount) AS total_paid
+    FROM 
+        advances a
+    LEFT JOIN 
+        payments p ON a.id = p.advance_id
+    GROUP BY 
+        a.employee_id
+) AS p ON e.id = p.employee_id
+ORDER BY 
+    e.id");
+
 ?>
 
 <!DOCTYPE html>
@@ -62,9 +92,9 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                     <tr>
                         <th class="bg-gradient-success text-gray-100">#</th>
                         <th class="bg-gradient-success text-gray-100">الموظف</th>
-                        <th class="bg-gradient-success text-gray-100">الاجمالي</th>
-                        <th class="bg-gradient-success text-gray-100">رقم التواصل</th>
-                        <th class="bg-gradient-success text-gray-100">القسم </th>
+                        <th class="bg-gradient-success text-gray-100">الإجمالي</th>
+                        <th class="bg-gradient-success text-gray-100">إجمالي المدفوعات </th>
+                        <th class="bg-gradient-success text-gray-100">المتبقي </th>
                         <th class="bg-gradient-success text-gray-100">التفاصيل</th>
                     </tr>
                     </thead>
@@ -72,11 +102,11 @@ $results=$advance->select("SELECT sum(amount) AS 'total',departments.name AS 'de
                     <?php $count = 0; foreach ($results as $result): $count++; ?>
                         <tr>
                             <td><?= $count ?></td>
-                            <td><?= htmlspecialchars($result['emp_name']) ?></td>
-                            <td><?= htmlspecialchars($result['total']) ?></td>
-                            <td><?= htmlspecialchars($result['emp_phone']) ?></td>
-                            <td><?= htmlspecialchars($result['dep_name']) ?></td>
-                            <td><a href="advance_details.php?id=<?= $result['emp_id']?>"><button class="btn btn-outline-primary">التفاصيل</button></a></td>
+                            <td><?= htmlspecialchars($result['name']) ?></td>
+                            <td><?= htmlspecialchars($result['total_advance']) ?></td>
+                            <td><?= htmlspecialchars($result['total_paid']) ?></td>
+                            <td><?= htmlspecialchars($result['remaining_balance']) ?></td>
+                            <td><a href="advance_details.php?id=<?= $result['emp_id']?>"><button class="btn btn-outline-secondary">التفاصيل</button></a></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
