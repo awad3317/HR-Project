@@ -86,7 +86,7 @@ $count=0;
                                         <td><?=$count?></td>
                                         <td><?=htmlspecialchars($employee['name'])?></td>
                                         <td><a class="btn btn-outline-secondary" href="Certificate_of_Experience.php?id=<?=$employee['id']?>">توليد</a></td>
-                                        <td><a class="btn btn-outline-secondary" href="?id=<?=$employee['id']?>">توليد</a></td>
+                                        <td><a class="btn btn-outline-secondary" href="employee_data.php?id=<?=$employee['id']?>">توليد</a></td>
                                     </tr>
                                     <?php }?>
                                    </tbody>
